@@ -1,0 +1,269 @@
+# Study Notebook — Product Thinking Document
+**AI-Focused Product Design**
+Version 1.0 | Personal Portfolio Project
+
+---
+
+## 1. The Context Behind This Product
+
+This tool was built by me, for me.
+
+I am actively searching for a PM or TPM role in tech. The job market is competitive. Getting an offer requires doing several things consistently and well at the same time: practicing case interviews, applying to enough companies every day, and maintaining outreach to recruiters and hiring managers. Each of these activities compounds over time. Missing a day on any of them sets you back more than it seems.
+
+The four tabs in this product map directly to what a serious job seeker has to do to compete:
+
+**Product Case** and **TPM Case** cover the interview skill gap. PM and TPM interviews have a specific format, and performance in them is a learnable skill. It requires repeated deliberate practice with feedback, not passive reading.
+
+**Habits** covers the job search volume problem. Five job applications and two recruiter outreach messages per day is the minimum consistent effort needed to generate enough pipeline. Most people track this loosely or not at all. Streaks make the consistency visible and meaningful.
+
+**Progress** closes the loop. Without a way to see whether your interview scores are actually improving over time, practice feels arbitrary. The progress view turns sessions into a measurable trajectory.
+
+Each tab solves a distinct part of the same problem: landing the job.
+
+---
+
+## 2. Problem Statement
+
+### The User
+
+A career-transitioning professional preparing for PM and TPM interviews at tech companies. Self-directed, motivated, but without access to structured coaching or peer mock interview partners on demand.
+
+### The Job To Be Done
+
+"Help me practice interviewing in a way that actually makes me better, not just more familiar with frameworks."
+
+### What Existing Solutions Get Wrong
+
+| Tool | What it offers | What it misses |
+|---|---|---|
+| Exponent / IGotAnOffer | Video walkthroughs, sample answers | Passive consumption with no practice loop |
+| ChatGPT (unstructured) | On-demand feedback | No memory, no progression, no accountability |
+| Peer mock interviews | Real conversation feel | Hard to schedule, inconsistent quality |
+| Notion habit trackers | Habit logging | No intelligence, just a checkbox |
+
+### The Gap
+
+No tool combines a structured 8-step interview framework, an AI that behaves like a real interviewer rather than a tutor, adaptive difficulty based on past performance, and daily habit tracking in one place designed for studying.
+
+---
+
+## 3. Why Existing LLM Interfaces Fail for Skill Building
+
+This is the core design insight behind the product.
+
+General-purpose AI chat interfaces are optimized for helpfulness. They validate your thinking, offer suggestions when you get stuck, and correct you gently when you go wrong. This makes them excellent for exploration and information retrieval. For skill building under pressure, it makes them counterproductive.
+
+**Helpfulness undermines productive struggle.** Learning a complex skill requires encountering difficulty and working through it. When a model hints at the next step or validates a partial answer, it removes the struggle before the learning can happen. The user finishes the session feeling good about an answer they did not actually earn.
+
+**Conversational AI tends to overvalidate.** Models are trained to be agreeable. In a mock interview context, this means they say "great point" when the point was shallow, accept a user segment without probing whether the choice was justified, and move forward when they should push back. This creates false confidence, the most dangerous preparation outcome because it is invisible.
+
+**Without consistent evaluation criteria, scores are meaningless.** A general AI evaluating an interview answer will produce different scores on different days for the same quality of response. If a user cannot trust that a 3.2 means the same thing across sessions, the score cannot drive behavior change. And if the score cannot drive behavior change, tracking progress is theater.
+
+**Tutoring reduces transferability.** When AI explains what step you should be on, you learn to follow instructions in that specific context. In a real interview, there are no instructions. The skill that actually transfers is knowing which step to apply and when, without being told. A system that guides you through the framework teaches framework familiarity. A system that withholds guidance and then evaluates your choices teaches judgment.
+
+Study Notebook is designed around these constraints. The AI interviewer does not help during a session. Scoring is anchored to explicit behavioral signals per step, not overall impression. The learning profile persists across sessions so that improvement is measurable and consistent. The walkthrough teaches the mental model before the practice session requires you to apply it independently.
+
+---
+
+## 4. User Context and Pain Points
+
+**Friction 1: No safe space to fail**
+Real mock interviews carry social cost. The AI interviewer removes that barrier. You can attempt an answer, fail to address a critical step, and see that in the score without anyone watching.
+
+**Friction 2: Generic feedback**
+"Your answer was good but could be more structured" is not actionable. Scoring across 8 specific framework dimensions with concrete behavioral evidence of what was missing is.
+
+**Friction 3: No memory between sessions**
+Without persistence, you repeat the same mistakes because nothing carries forward. The learning profile tracks your weak areas across sessions and adjusts what the system throws at you next.
+
+**Friction 4: Accountability is invisible**
+Most people know they should apply to five jobs a day. A streak-based tracker makes consistency visible and makes skipping a day feel concrete rather than abstract.
+
+---
+
+## 5. Product Goals
+
+**Primary:** Score improves measurably across the 8-step framework over 4 to 6 weeks of daily practice.
+
+**Secondary:** Daily job search habits (applications and outreach) are maintained consistently throughout the search period.
+
+**Non-goal:** This is not a job board, a resume tool, or a networking platform.
+
+---
+
+## 6. AI Design Decisions
+
+---
+
+### 6.1 The 8-Step Framework as the AI's Spine
+
+**Decision:** All AI behavior, including case generation, interviewer prompting, scoring, and adaptive targeting, is anchored to a fixed 8-step PM interview framework.
+
+A framework is not just a teaching structure. It is the AI's internal state machine. The interviewer tracks which step the user is on. The scorer evaluates each step independently. The adaptive system identifies which steps to target in future sessions. Without a shared framework, the AI has no consistent way to evaluate quality. Scores would reflect impression rather than specific behavioral criteria, making them unreliable as a basis for adaptation.
+
+Free-form evaluation was considered and rejected. A prompt asking a model to "rate this answer 1-10" produces inconsistent scores and no actionable breakdown. Users learn to write longer answers, not better ones.
+
+---
+
+### 6.2 Two-Model Architecture
+
+**Decision:** GPT-4o-mini for low-stakes generative tasks (case creation, daily summary) and GPT-4o for high-stakes evaluative tasks (live interviewer, scoring).
+
+The live interviewer has two requirements that smaller models handle poorly at scale.
+
+Character consistency across a 15-plus turn conversation is the first. The model must stay in interviewer mode, not validate answers, not hint at missing steps, not break the frame when pushed. Smaller models drift from directive system prompts as conversation length increases. A single character break destroys the simulation's value.
+
+Nuanced scoring is the second. The difference between a 2 and a 3 on "Define User and Pain Point" comes down to whether the user picked a segment and justified the choice or merely listed options. That distinction requires genuine judgment. GPT-4o-mini tends toward score generosity and inconsistency on these calls.
+
+Case generation is structurally constrained. Producing a JSON object matching a defined schema with specific company profiles, situation briefs, and constraints is a task smaller models handle reliably. Using GPT-4o for this would add cost with no perceptible quality gain.
+
+At one to two sessions per day, the cost difference between models amounts to roughly three to four dollars per month.
+
+---
+
+### 6.3 The AI Interviewer Does Not Tutor
+
+**Decision:** The live mode AI plays an interviewer. It does not coach, validate, or explain the framework during a session.
+
+Real interviews do not come with hints. An AI that guides a user through the framework in real time teaches framework recall in an assisted environment. The skill that transfers to an actual interview is unassisted judgment: knowing which step applies, when to move on, and how to handle a follow-up question that challenges a prior answer. A tutoring model cannot build that.
+
+Specific behaviors enforced in the system prompt: never affirm an answer, never indicate which step the user should be on, never suggest what to consider next, probe with one question at a time, and decline to confirm whether the user is on the right track if asked directly.
+
+---
+
+### 6.4 Walkthrough Mode: Teaching Through Three Layers
+
+**Decision:** The example walkthrough renders every candidate response in three layers: internal thinking, what was said out loud, and a coach note explaining the technique.
+
+Showing only the spoken answer teaches mimicry. Showing the internal reasoning teaches the mental model. The coach note connects the moment to interview strategy. Together they answer three questions a learner needs at each step: what am I supposed to be thinking right now, how do I say it without sounding rehearsed, and why does this moment matter in an interview context.
+
+The walkthrough and practice case share the same problem type but use different companies in different industries. This is deliberate near-transfer learning. The learner absorbs the pattern in one context and must apply it independently in a fresh context. A different domain prevents pattern-matching. An unrelated problem type makes the walkthrough pedagogically useless as preparation for the practice session.
+
+---
+
+### 6.5 What "Adaptive" Actually Means
+
+**Decision:** Case generation is driven by a persistent learning profile tracking per-step scores, recent problem types seen, and current difficulty level.
+
+Most tools that call themselves adaptive randomize content. This product targets gaps.
+
+The learning profile drives three behaviors. First, if a user scores below 3.0 on a step consistently, the next case is constructed so that step is unavoidable, meaning the scenario is designed so that a weak answer on that step makes the rest of the case incoherent. Second, the system tracks the last five problem types used and avoids repetition, ensuring the user builds competency across growth, retention, monetization, marketplace, platform, and operational efficiency cases. Third, difficulty escalates only when the user sustains a 3.8-plus average across five consecutive sessions, not after a single strong performance.
+
+Cold start is handled by a three-question diagnostic in the first session, which seeds the profile before real performance data exists.
+
+---
+
+### 6.6 Scoring Design: Eight Dimensions, Not One Number
+
+**Decision:** Score each of the 8 framework steps independently on a 1-5 scale. Surface the breakdown as a radar chart rather than a single aggregate.
+
+An overall score of 3.4 carries no information about what to fix. A user who scores 5 on clarifying objectives but 1 on success metrics has a completely different preparation gap from a user who scores 3 on everything. The radar chart makes the shape of the problem visible at a glance. The shape tells you more than the center number.
+
+Band labels replace raw scores at the top-line summary level: Weak, Developing, Strong, Exceptional. Bands communicate readiness more intuitively than a decimal. They also reduce score gaming, since optimizing for "Strong" is harder to game than optimizing for 3.8.
+
+---
+
+### 6.7 TPM and Product: Shared Framework, Different Emphasis
+
+**Decision:** TPM and Product cases use the same 8-step framework with domain-appropriate overrides on three steps.
+
+The core PM thinking process transfers across both roles. Both require defining the problem before solving it, identifying the right users or stakeholders, diagnosing root causes, and making defensible recommendations. Separate frameworks for each role would double the complexity without proportional learning value.
+
+Three steps are overridden for TPM. Step 2 becomes "Identify Stakeholders and Dependencies" because TPM execution depends on understanding who is involved and how they are coupled. Step 5 becomes "Execution Plan with Milestones and Owners" because the deliverable is a delivery plan, not a product design. Step 6 becomes "Launch Criteria and Rollback Triggers" because TPM success is measured by ship confidence, not business outcomes.
+
+---
+
+## 7. Why the Architecture Supports the Product Goals
+
+**Statelessness as a deliberate product decision**
+
+The backend is fully stateless. Every API call receives the complete conversation history. No session state is stored server-side. This decision was made for two reasons that matter to the product, not just the infrastructure.
+
+First, it means the AI evaluator always works from the full context of a session, not a compressed summary. Scoring accuracy depends on having access to every message the user sent, including early clarifications that informed later answers. A stateful backend that stores only partial context would produce less reliable scores.
+
+Second, statelessness makes the conversation portable. A session in progress lives in the React state on the user's device. If the user closes the tab or refreshes, the session is gone, which is intentional. This is a practice tool. Incomplete sessions are not recoverable by design, which creates a mild commitment mechanism: starting a session means finishing it.
+
+**Serverless persistence for the learning loop**
+
+The learning profile, session history, scores, and habits are persisted in Azure Cosmos DB with a serverless capacity model. The serverless choice was made because the usage pattern, a single user doing one to two sessions per day, is exactly the pattern serverless is designed for. Provisioned throughput carries a cost floor regardless of usage. Serverless scales to zero when nothing is happening, which for a personal tool is most of the time.
+
+The persistence itself is not incidental. It is what makes the adaptive system possible. A tool that forgets your scores after each session cannot adapt to your weak areas. Persistence is the mechanism by which practice sessions accumulate into a learning trajectory rather than remaining isolated events.
+
+**Latency and the two-model split**
+
+Case generation happens before the session begins, so latency is acceptable. The user sees a loading state while the case is constructed. GPT-4o-mini is fast and the structural constraints on the output are tight, so generation is reliable and quick.
+
+The live interviewer is a different constraint. Streaming is used here because a blank screen while GPT-4o reasons through a response breaks the conversational feel. A real interviewer responds in seconds. Streaming gives the user a visible response within one to two seconds even when the full message takes longer to generate. This is a UX requirement that shaped the API implementation.
+
+**The cost ceiling**
+
+The entire system runs within Azure's free and near-free tiers. Static Web Apps, Cosmos DB serverless, and Azure Functions all have tiers that cost nothing at single-user scale. The only real cost is model inference, which at daily usage runs between three and five dollars per month. This ceiling was explicit in the design. A tool built for a job seeker should not create meaningful ongoing expense during the job search period.
+
+---
+
+## 8. What Was Not Built
+
+| Feature | Reason |
+|---|---|
+| User authentication | Single-user tool. Auth adds surface area with no value. |
+| Mobile native app | Web is sufficient at tablet width. A native build pipeline adds maintenance burden. |
+| Social or peer features | Moderation complexity and cold start problem arrive before core value is validated. |
+| Spaced repetition | Deferred to V2. Core practice loop needs validation first. |
+| Resume or LinkedIn integration | Different job-to-be-done. Out of scope. |
+| Percentile scoring | No comparative data pool exists. Any percentile would be fabricated. |
+
+---
+
+## 9. Success Metrics
+
+**North Star:** Average framework score increases by 0.5 or more points per step over four weeks of daily practice.
+
+**Input metrics:**
+- Sessions completed per week (target: 5 or more)
+- Habit completion rate (target: 80% of days with at least 3 of 4 habits complete)
+- Problem type coverage (target: all 7 types attempted within two weeks)
+
+**Behavioral indicators:**
+- User reaches Intermediate difficulty within two weeks
+- Radar chart shape becomes more uniform over time, with no single step consistently at 1 or 2
+- Daily summary is opened on 80% or more of practice days
+
+**Guardrail metrics:**
+- AI interviewer character breaks, monitored by periodic manual review of session logs
+- Score inflation: if average scores trend above 4.5 without corresponding difficulty increase, the evaluator prompt is too lenient
+
+---
+
+## 10. Risks and Mitigations
+
+**Risk 1: AI interviewer drifts from character**
+The model may validate or hint mid-session, which trains false confidence rather than real skill.
+Mitigation: The system prompt is directive with explicit prohibitions. Session logs are spot-checked weekly. If drift is detected, the prompt is tightened with specific behavioral examples.
+
+**Risk 2: Scores feel arbitrary, eroding trust in the feedback loop**
+If a user scores 3.8 one session and 2.1 the next at the same answer quality, they will stop trusting the system, and the adaptive logic becomes meaningless.
+Mitigation: GPT-4o is used for scoring rather than mini. The rubric is anchored to specific behavioral signals per step. Feedback cites concrete evidence from the session rather than general impressions.
+
+**Risk 3: Habit tracker becomes a checkbox rather than behavior change**
+Streaks can be gamed by toggling without doing the work.
+Mitigation: Practice is auto-marked by the session engine, removing the ability to self-report it falsely. Job applications and outreach remain manual. The tool tracks commitment signals. Whether that commitment reflects real behavior is the user's problem to own.
+
+---
+
+## 11. Future Roadmap
+
+**V2: Spaced Repetition**
+Key learnings surface at optimal intervals using a simplified SM-2 algorithm. Today the Review Bank is chronological. V2 resurfaces content when forgetting is most likely.
+
+**V2: Full Mock Interview Mode**
+A timed 45-minute session across multiple case types in sequence. Mirrors actual interview structure with opening, case, and behavioral components.
+
+**V3: Voice Mode**
+Real interviews are verbal. Typing answers is a different skill from speaking them. Voice input with real-time transcription would close the gap between practice conditions and real conditions.
+
+**V3: Peer Export**
+Export a session transcript for a trusted peer to review asynchronously. No social feed, no comparison, just optional human feedback on top of AI evaluation.
+
+---
+
+*This document reflects decisions made during active development. It will be updated as usage data surfaces what is working and what is not.*
