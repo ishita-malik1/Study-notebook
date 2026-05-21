@@ -5,6 +5,7 @@ import ProductCase from './pages/ProductCase';
 import TPMCase from './pages/TPMCase';
 import Habits from './pages/Habits';
 import Dashboard from './pages/Dashboard';
+import ReviewBank from './pages/ReviewBank';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/tpm-case" element={<TPMCase />} />
         <Route path="/habits" element={<Habits />} />
         <Route path="/progress" element={<Dashboard />} />
+        <Route path="/review-bank" element={<ReviewBank />} />
       </Route>
     </Routes>
   );

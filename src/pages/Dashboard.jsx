@@ -7,6 +7,7 @@ import SkillRadarChart from '../components/dashboard/SkillRadarChart';
 import ScoreOverTimeChart from '../components/dashboard/ScoreOverTimeChart';
 import StreakStatsTable from '../components/dashboard/StreakStatsTable';
 import HabitHeatmap from '../components/habits/HabitHeatmap';
+import LoadingLine from '../components/layout/LoadingLine';
 import { getLiveSessions } from '../utils/progressMetrics';
 
 function SectionDivider() {
@@ -37,7 +38,9 @@ export default function Dashboard() {
     return (
       <div className="progress-page">
         <PageHeading>My Progress</PageHeading>
-        <p className="font-body text-gray-500 mt-6">Loading progress...</p>
+        <div className="mt-8 max-w-xs">
+          <LoadingLine />
+        </div>
       </div>
     );
   }

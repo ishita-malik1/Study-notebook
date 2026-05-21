@@ -228,3 +228,169 @@ body {
 .recharts-surface {
   font-family: 'Lato', system-ui, sans-serif !important;
 }
+
+.chart-min-height {
+  min-height: 200px;
+}
+
+/* Phase 7 — loading line (pencil on ruled paper) */
+.loading-line-wrap {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  padding: 8px 0;
+}
+
+.loading-line-track {
+  height: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    #c5d0e6 0,
+    #c5d0e6 8px,
+    transparent 8px,
+    transparent 12px
+  );
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.loading-line-pencil {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 48px;
+  height: 8px;
+  background: linear-gradient(90deg, transparent, #4a90d9 40%, #2c5282);
+  border-radius: 4px;
+  animation: pencil-draw 1.2s ease-in-out infinite;
+}
+
+@keyframes pencil-draw {
+  0% {
+    left: 0;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 48px);
+    opacity: 0.6;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Error sticky note */
+.error-sticky-note-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.error-sticky-note,
+.daily-summary-overlay .error-sticky-note {
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 1.25rem 1.5rem;
+  max-width: 360px;
+  transform: rotate(-1.5deg);
+  border-radius: 2px;
+}
+
+/* Tab & page transitions */
+.page-transition-fade {
+  animation: page-fade-in 200ms ease-out;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nav-tab-link {
+  transition: opacity 200ms ease, background-color 150ms ease;
+}
+
+/* Chat message slide-up */
+.chat-message-enter {
+  animation: chat-slide-up 150ms ease-out;
+}
+
+@keyframes chat-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scoring screen stagger */
+.scoring-section {
+  animation: scoring-fade-in 300ms ease-out backwards;
+}
+
+.scoring-section:nth-child(1) {
+  animation-delay: 0ms;
+}
+.scoring-section:nth-child(2) {
+  animation-delay: 100ms;
+}
+.scoring-section:nth-child(3) {
+  animation-delay: 200ms;
+}
+.scoring-section:nth-child(4) {
+  animation-delay: 300ms;
+}
+.scoring-section:nth-child(5) {
+  animation-delay: 400ms;
+}
+
+@keyframes scoring-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Review bank & daily summary pages */
+.review-bank-page,
+.daily-summary-overlay {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.notebook-app-min {
+  overflow-x: auto;
+}
+
+.end-day-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

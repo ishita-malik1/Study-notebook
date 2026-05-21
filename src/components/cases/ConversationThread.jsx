@@ -38,11 +38,9 @@ export default function ConversationThread({ conversation }) {
         if (showStepPill) seenSteps.add(message.stepId);
 
         return (
-          <ConversationMessage
-            key={`msg-${index}-${message.role}`}
-            message={message}
-            showStepPill={showStepPill}
-          />
+          <div key={`msg-${index}-${message.role}`} className="chat-message-enter">
+            <ConversationMessage message={message} showStepPill={showStepPill} />
+          </div>
         );
       })}
     </div>

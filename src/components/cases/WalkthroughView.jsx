@@ -1,5 +1,6 @@
 import StickyNote from './StickyNote';
 import ConversationThread from './ConversationThread';
+import LoadingLine from '../layout/LoadingLine';
 
 export default function WalkthroughView({
   walkthroughCase,
@@ -15,9 +16,7 @@ export default function WalkthroughView({
   if (loading) {
     return (
       <div className="case-loading flex flex-col items-center justify-center py-20">
-        <span className="case-pencil text-5xl animate-bounce" aria-hidden>
-          ✏️
-        </span>
+        <LoadingLine />
         <p className="font-body mt-4 text-lg text-gray-600">
           Preparing your case study...
         </p>

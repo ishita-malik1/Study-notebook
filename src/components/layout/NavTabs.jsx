@@ -5,6 +5,7 @@ const TABS = [
   { label: 'TPM Case', shortLabel: 'TPM', path: '/tpm-case', color: '#7b68ee' },
   { label: 'Habits', shortLabel: 'Habits', path: '/habits', color: '#52b788' },
   { label: 'Progress', shortLabel: 'Progress', path: '/progress', color: '#f4a261' },
+  { label: 'Review Bank', shortLabel: 'Review', path: '/review-bank', color: '#e07b54' },
 ];
 
 export default function NavTabs() {
@@ -16,7 +17,7 @@ export default function NavTabs() {
           to={tab.path}
           className={({ isActive }) =>
             [
-              'relative -mb-px px-3 sm:px-5 py-2 text-xs sm:text-sm font-medium font-body rounded-t-md transition-all whitespace-nowrap flex-shrink-0',
+              'nav-tab-link relative -mb-px px-3 sm:px-5 py-2 text-xs sm:text-sm font-medium font-body rounded-t-md transition-all whitespace-nowrap flex-shrink-0',
               'border-t-4 no-underline',
               isActive
                 ? 'bg-[#fdf8f0] text-gray-800 shadow-sm z-20 -translate-y-0.5'

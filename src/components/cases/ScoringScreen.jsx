@@ -23,7 +23,7 @@ export default function ScoringScreen({
 
   return (
     <div className="scoring-screen font-body pb-10">
-      <section className="text-center py-6">
+      <section className="scoring-section text-center py-6">
         <p
           className="text-4xl font-bold tracking-wide"
           style={{ color: bandStyle.color }}
@@ -40,7 +40,7 @@ export default function ScoringScreen({
         )}
       </section>
 
-      <section className="mt-6 space-y-3">
+      <section className="scoring-section mt-6 space-y-3">
         <h3 className="font-semibold text-gray-800">Step-by-Step</h3>
         {FRAMEWORK_STEPS.map((step) => {
           const addressed = covered.has(step.id);
@@ -78,7 +78,7 @@ export default function ScoringScreen({
         })}
       </section>
 
-      <section className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+      <section className="scoring-section mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
         <div>
           <h4 className="font-semibold text-gray-800 mb-2">✅ What You Did Well</h4>
           <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
@@ -105,7 +105,7 @@ export default function ScoringScreen({
         </div>
       </section>
 
-      <section className="mt-8 flex flex-wrap gap-3 justify-center">
+      <section className="scoring-section mt-8 flex flex-wrap gap-3 justify-center">
         <button
           type="button"
           onClick={onSave}
