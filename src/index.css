@@ -207,3 +207,24 @@ body {
   background: #fffbeb;
   border-left: 3px solid #f59e0b;
 }
+
+/* Progress dashboard */
+.progress-page {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.progress-page h2,
+.progress-page h3,
+.progress-page p {
+  line-height: normal;
+}
+
+.progress-section {
+  width: 100%;
+}
+
+.recharts-wrapper,
+.recharts-surface {
+  font-family: 'Lato', system-ui, sans-serif !important;
+}
