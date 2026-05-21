@@ -1,3 +1,3 @@
 export default function PageHeading({ children }) {
-  return <h1 className="page-heading ruled-line-height">{children}</h1>;
+  return <h1 className="page-heading">{children}</h1>;
 }

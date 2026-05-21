@@ -3,8 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=18 <=20"
+  },
   "scripts": {
     "dev": "vite",
+    "dev:api": "npx @azure/static-web-apps-cli start . --api-location api",
     "build": "vite build",
     "preview": "vite preview"
   },

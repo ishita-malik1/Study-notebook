@@ -20,18 +20,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Notebook ruled paper background */
-.notebook-ruled {
-  background-color: #fdf8f0;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 31px,
-    #c5d0e6 31px,
-    #c5d0e6 32px
-  );
-  background-size: 100% 32px;
-  background-position: 0 0;
+:root {
+  --rule-height: 32px;
+  --rule-color: #c5d0e6;
+  --notebook-cream: #fdf8f0;
+  /* Nudge so handwriting baselines sit on the blue lines (Patrick Hand / Kalam) */
+  --baseline-nudge: 7px;
 }
 
 /* Red margin line */
@@ -43,6 +37,7 @@ body {
   width: 1px;
   background-color: #e8a0a0;
   pointer-events: none;
+  z-index: 2;
 }
 
 /* Spiral ring styling */
@@ -56,22 +51,79 @@ body {
     inset 0 -1px 2px rgba(255, 255, 255, 0.8);
 }
 
-/* Align text to ruled lines */
-.ruled-line-height {
-  line-height: 32px;
+/*
+ * Ruled lines live on the same element as the text so they scroll together.
+ * Each line of text is exactly one rule row tall; font size stays inside the row.
+ */
+.notebook-page-content {
+  min-height: 100%;
+  padding-top: var(--baseline-nudge);
+  padding-bottom: var(--rule-height);
+  background-color: var(--notebook-cream);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--notebook-cream) 0,
+    var(--notebook-cream) calc(var(--rule-height) - 1px),
+    var(--rule-color) calc(var(--rule-height) - 1px),
+    var(--rule-color) var(--rule-height)
+  );
+  background-size: 100% var(--rule-height);
+  background-attachment: local;
+  font-family: 'Kalam', 'Patrick Hand', cursive;
+  font-size: 22px;
+  color: #2c2c2c;
+}
+
+.notebook-page-content h1,
+.notebook-page-content h2,
+.notebook-page-content p,
+.notebook-page-content .page-heading,
+.notebook-page-content .page-placeholder {
+  margin: 0;
+  padding: 0;
+  line-height: var(--rule-height);
+  overflow: visible;
 }
 
 .page-heading {
   font-family: 'Caveat', 'Patrick Hand', cursive;
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 32px;
-  margin: 0;
-  padding-top: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: var(--rule-height);
+  letter-spacing: 0.03em;
+  /* Keep cap height inside one rule row so baselines stay on the grid */
+  transform: translateY(1px);
 }
 
 .page-placeholder {
-  color: #9ca3af;
-  line-height: 32px;
-  margin: 0;
+  font-family: 'Kalam', 'Patrick Hand', cursive;
+  font-size: 22px;
+  line-height: var(--rule-height);
+  color: #7a6f5a;
+}
+
+/* Habits page uses standard UI layout inside the notebook */
+.habits-page {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.habits-page h2,
+.habits-page h3,
+.habits-page p {
+  line-height: normal;
+}
+
+.habit-heatmap .heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: default;
+}
+
+.habit-heatmap .heatmap-legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
 }

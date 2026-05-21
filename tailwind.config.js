@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        handwriting: ['Caveat', 'Patrick Hand', 'cursive'],
+        handwriting: ['Caveat', 'Kalam', 'Patrick Hand', 'cursive'],
         body: ['Lato', 'system-ui', 'sans-serif'],
       },
       colors: {

@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AZURE_COSMOS_CONNECTION_STRING": "",
+    "AZURE_COSMOS_DATABASE": "studynotebook"
+  }
+}

@@ -23,12 +23,48 @@ Personal productivity web app for product/TPM case interview practice, daily hab
    cd api && npm install
    ```
 
-3. Run locally:
+3. Use **Node.js 20 LTS** (Azure Functions does not support Node 24):
+   ```bash
+   node -v   # should print v20.x.x
+   ```
+   If you have [nvm-windows](https://github.com/coreybutler/nvm-windows):
+   ```bash
+   nvm install 20
+   nvm use 20
+   ```
+
+4. Run locally (**two terminals**, both from project root `study-notebook/`):
+
+   **Terminal A — API:**
+   ```bash
+   npm run dev:api
+   ```
+
+   **Terminal B — Frontend:**
    ```bash
    npm run dev
    ```
 
-4. Deploy: Push to GitHub. Azure Static Web Apps auto-deploys. Add all env variables in Azure Portal → Static Web App → Configuration.
+   Do **not** run `npm run dev:api` from inside the `api/` folder.
+
+5. Deploy: Push to GitHub. Azure Static Web Apps auto-deploys. Add all env variables in Azure Portal → Static Web App → Configuration.
+
+## Cosmos DB containers
+
+Create two containers in database `studynotebook` (partition key `/id`):
+
+- `habits` — daily habit documents (`habit-YYYY-MM-DD`)
+- `streaks` — single document `streaks-main`
+
+## Habits API
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/habits?date=YYYY-MM-DD` | Single day habits |
+| GET | `/api/habits?from=YYYY-MM-DD&to=YYYY-MM-DD` | Date range (heatmap) |
+| POST | `/api/habits` | Toggle habit `{ date, habitKey, value }` |
+| GET | `/api/streaks` | Streak document |
+| POST | `/api/streaks` | Upsert streak document |
 
 ## Routes
 

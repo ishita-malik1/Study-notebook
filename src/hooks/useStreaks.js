@@ -1,8 +1,13 @@
+import { useStreaksContext } from '../context/StreaksContext';
+
 export function useStreaks() {
+  const { streaks, loading, error, refresh, setStreaks } = useStreaksContext();
+
   return {
-    streaks: [],
-    loading: false,
-    error: null,
-    refresh: async () => {},
+    streaks,
+    loading,
+    error,
+    refresh,
+    setStreaks,
   };
 }

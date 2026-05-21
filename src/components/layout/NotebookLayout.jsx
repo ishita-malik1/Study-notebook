@@ -1,11 +1,17 @@
 import { Outlet } from 'react-router-dom';
 import { format } from 'date-fns';
 import NavTabs from './NavTabs';
+import { useStreaks } from '../../hooks/useStreaks';
+import { getStripStreakSummary } from '../../utils/streakDisplay';
 
 const SPIRAL_RING_COUNT = 18;
 
 export default function NotebookLayout() {
   const today = format(new Date(), 'EEEE, MMM d');
+  const { streaks, loading: streaksLoading } = useStreaks();
+  const streakSummary = streaksLoading
+    ? 'Loading streaks...'
+    : getStripStreakSummary(streaks);
 
   return (
     <div className="min-h-screen flex flex-col bg-notebook-charcoal">
@@ -36,15 +42,17 @@ export default function NotebookLayout() {
             <div className="relative flex-1 flex flex-col min-h-0">
               <NavTabs />
 
-              {/* Content area with ruled lines */}
-              <div className="relative flex-1 notebook-ruled overflow-auto">
+              {/* Content area — ruled lines on inner wrapper so text stays on grid */}
+              <div
+                className="relative flex-1 overflow-auto"
+                style={{ backgroundColor: '#fdf8f0' }}
+              >
                 <div className="notebook-margin-line" />
                 <div
-                  className="relative mx-auto w-full max-w-[960px] min-h-full"
+                  className="notebook-page-content relative mx-auto w-full max-w-[960px] min-h-full"
                   style={{
                     paddingLeft: '96px',
                     paddingRight: '16px',
-                    paddingTop: '48px',
                   }}
                 >
                   <Outlet />
@@ -61,8 +69,8 @@ export default function NotebookLayout() {
               }}
             >
               <span className="flex-1">{today}</span>
-              <span className="flex-1 text-center opacity-90">
-                Jobs: 4 days | Outreach: 2 days
+              <span className="flex-1 text-center opacity-90 truncate px-2">
+                {streakSummary}
               </span>
               <span className="flex-1" />
             </div>
