@@ -18,9 +18,13 @@ Both Product Manager and TPM tracks are supported. Each session pairs a walkthro
 
 Daily boolean tracking for four habits: five job applications, two recruiter or hiring manager outreach messages, a product practice session, and a TPM practice session. Streak tracking shows current and longest streaks per habit. A 90-day activity heatmap shows consistency at a glance.
 
-**Progress Dashboard**
+**Progress Dashboard** (`/progress`)
 
-A radar chart showing your current strength across all 8 framework steps. A score trend line across sessions. A daily summary with key learnings carried forward from past sessions and a focus area for tomorrow based on your learning profile.
+- **Where you stand:** level badge, session count, 8-step skill radar (after 3+ live sessions)
+- **Score over time:** product vs TPM case scores by session number, with step-level insights
+- **Habits & consistency:** 90-day heatmap, streak table, and consistency score
+
+Data loads from `GET /api/progress`; all chart math runs client-side in `src/utils/progressMetrics.js`.
 
 ---
 

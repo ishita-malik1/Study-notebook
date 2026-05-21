@@ -12,7 +12,12 @@ function countCompleted(habitDoc) {
   return HABIT_DEFINITIONS.filter((h) => habitDoc[h.key]).length;
 }
 
-export default function HabitHeatmap({ history, loading }) {
+export default function HabitHeatmap({
+  history,
+  loading,
+  compact = false,
+  title = 'Activity — last 90 days',
+}) {
   const [tooltip, setTooltip] = useState(null);
 
   const { days, byDate } = useMemo(() => {
@@ -39,8 +44,14 @@ export default function HabitHeatmap({ history, loading }) {
 
   return (
     <div className="habit-heatmap">
-      <h2 className="font-handwriting text-2xl text-gray-800 mb-3">
-        Activity — last 90 days
+      <h2
+        className={
+          compact
+            ? 'font-body text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3'
+            : 'font-handwriting text-2xl text-gray-800 mb-3'
+        }
+      >
+        {title}
       </h2>
       <div className="flex flex-wrap gap-1">
         {days.map((dateStr) => {
