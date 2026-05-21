@@ -3,10 +3,10 @@ import { format } from 'date-fns';
 import { generateCasePair, savePracticeSession } from '../services/caseApi';
 import { TPM_STEP_OVERRIDES } from '../constants/caseFramework';
 import {
-  getLearningProfile,
   hasWalkthroughToday,
   incrementSessionCount,
   markWalkthroughToday,
+  getLearningProfile as fetchProfileForGenerate,
 } from '../utils/caseSessionStorage';
 
 export function useCaseSession(caseType) {
@@ -32,7 +32,7 @@ export function useCaseSession(caseType) {
     setSaved(false);
 
     try {
-      const learningProfile = getLearningProfile(caseType);
+      const learningProfile = await fetchProfileForGenerate(caseType);
       const result = await generateCasePair({
         type: caseType,
         learningProfile,
@@ -65,8 +65,18 @@ export function useCaseSession(caseType) {
   }, []);
 
   const startPractice = useCallback(() => {
+    if (!practiceCase) return;
     setView('practice');
-  }, []);
+  }, [practiceCase]);
+
+  const reviewWalkthrough = useCallback(() => {
+    if (walkthroughCase) {
+      setView('walkthrough');
+      setError(null);
+    } else {
+      startWalkthrough();
+    }
+  }, [walkthroughCase, startWalkthrough]);
 
   const saveToReviewBank = useCallback(async () => {
     if (!walkthroughCase || !practiceCase) return;
@@ -119,6 +129,7 @@ export function useCaseSession(caseType) {
     goToLanding,
     skipToPractice,
     startPractice,
+    reviewWalkthrough,
     saveToReviewBank,
   };
 }

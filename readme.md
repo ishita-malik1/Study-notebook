@@ -55,7 +55,8 @@ Create two containers in database `studynotebook` (partition key `/id`):
 
 - `habits` — daily habit documents (`habit-YYYY-MM-DD`)
 - `streaks` — single document `streaks-main`
-- `practice_sessions` — saved walkthrough sessions (partition key `/id`)
+- `practice_sessions` — saved walkthrough + live sessions (partition key `/id`)
+- `learning_profiles` — per-type learning progress (`learning-profile-product`, `learning-profile-tpm`)
 
 Add to `api/local.settings.json` and Azure Portal for case generation:
 
@@ -76,6 +77,10 @@ Add to `api/local.settings.json` and Azure Portal for case generation:
 | POST | `/api/streaks` | Upsert streak document |
 | POST | `/api/generateCase` | Generate walkthrough + practice case pair |
 | POST | `/api/savePracticeSession` | Save walkthrough to review bank |
+| POST | `/api/conductInterview` | Live interviewer (`stream: true` for SSE) |
+| POST | `/api/evaluateSession` | Score live practice session |
+| POST | `/api/saveLiveSession` | Save live session + update profile + mark habit |
+| GET | `/api/learningProfile?type=` | Fetch learning profile |
 
 ## Routes
 
