@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { fetchLearningProfile } from '../services/interviewApi';
 
 function todayKey() {
   return format(new Date(), 'yyyy-MM-dd');
@@ -24,12 +25,19 @@ export function incrementSessionCount(caseType) {
   return next;
 }
 
-export function getLearningProfile(caseType) {
+export async function getLearningProfile(caseType) {
   if (getSessionCount(caseType) < 3) {
     return null;
   }
-  return {
-    weakSteps: [],
-    recentProblemTypes: [],
-  };
+
+  try {
+    const profile = await fetchLearningProfile(caseType);
+    return profile;
+  } catch {
+    return {
+      weakSteps: [],
+      weak_areas: [],
+      recentProblemTypes: [],
+    };
+  }
 }

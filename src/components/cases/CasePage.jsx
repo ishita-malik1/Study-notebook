@@ -2,7 +2,7 @@ import PageHeading from '../layout/PageHeading';
 import { useCaseSession } from '../../hooks/useCaseSession';
 import CaseLanding from './CaseLanding';
 import WalkthroughView from './WalkthroughView';
-import PracticePlaceholder from './PracticePlaceholder';
+import PracticeSession from './PracticeSession';
 
 export default function CasePage({ caseType, title }) {
   const session = useCaseSession(caseType);
@@ -13,7 +13,9 @@ export default function CasePage({ caseType, title }) {
 
   return (
     <div className="case-page">
-      <PageHeading>{title}</PageHeading>
+      {session.view === 'landing' && (
+        <PageHeading>{title}</PageHeading>
+      )}
 
       {session.view === 'landing' && !session.loading && (
         <CaseLanding
@@ -40,9 +42,11 @@ export default function CasePage({ caseType, title }) {
       )}
 
       {session.view === 'practice' && (
-        <PracticePlaceholder
+        <PracticeSession
+          caseType={caseType}
           practiceCase={session.practiceCase}
-          onBack={session.goToLanding}
+          onReviewWalkthrough={session.reviewWalkthrough}
+          onBackHome={session.goToLanding}
         />
       )}
     </div>

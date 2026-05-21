@@ -40,6 +40,31 @@ body {
   z-index: 2;
 }
 
+@media (max-width: 639px) {
+  .notebook-margin-line {
+    left: 16px;
+  }
+}
+
+.notebook-page-content--responsive {
+  padding-left: 16px;
+  padding-right: 12px;
+}
+
+@media (min-width: 640px) {
+  .notebook-page-content--responsive {
+    padding-left: 64px;
+    padding-right: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .notebook-page-content--responsive {
+    padding-left: 96px;
+    padding-right: 16px;
+  }
+}
+
 /* Spiral ring styling */
 .spiral-ring {
   width: 16px;

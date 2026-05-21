@@ -30,8 +30,13 @@ function getPracticeSessionsContainer() {
   return getDatabase().container('practice_sessions');
 }
 
+function getLearningProfilesContainer() {
+  return getDatabase().container('learning_profiles');
+}
+
 module.exports = {
   getHabitsContainer,
   getStreaksContainer,
   getPracticeSessionsContainer,
+  getLearningProfilesContainer,
 };
