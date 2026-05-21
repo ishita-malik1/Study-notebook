@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Lato', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --rule-height: 32px;
+  --rule-color: #c5d0e6;
+  --notebook-cream: #fdf8f0;
+  /* Nudge so handwriting baselines sit on the blue lines (Patrick Hand / Kalam) */
+  --baseline-nudge: 7px;
+}
+
+/* Red margin line */
+.notebook-margin-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 80px;
+  width: 1px;
+  background-color: #e8a0a0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Spiral ring styling */
+.spiral-ring {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/*
+ * Ruled lines live on the same element as the text so they scroll together.
+ * Each line of text is exactly one rule row tall; font size stays inside the row.
+ */
+.notebook-page-content {
+  min-height: 100%;
+  padding-top: var(--baseline-nudge);
+  padding-bottom: var(--rule-height);
+  background-color: var(--notebook-cream);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--notebook-cream) 0,
+    var(--notebook-cream) calc(var(--rule-height) - 1px),
+    var(--rule-color) calc(var(--rule-height) - 1px),
+    var(--rule-color) var(--rule-height)
+  );
+  background-size: 100% var(--rule-height);
+  background-attachment: local;
+  font-family: 'Kalam', 'Patrick Hand', cursive;
+  font-size: 22px;
+  color: #2c2c2c;
+}
+
+.notebook-page-content h1,
+.notebook-page-content h2,
+.notebook-page-content p,
+.notebook-page-content .page-heading,
+.notebook-page-content .page-placeholder {
+  margin: 0;
+  padding: 0;
+  line-height: var(--rule-height);
+  overflow: visible;
+}
+
+.page-heading {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: var(--rule-height);
+  letter-spacing: 0.03em;
+  /* Keep cap height inside one rule row so baselines stay on the grid */
+  transform: translateY(1px);
+}
+
+.page-placeholder {
+  font-family: 'Kalam', 'Patrick Hand', cursive;
+  font-size: 22px;
+  line-height: var(--rule-height);
+  color: #7a6f5a;
+}
+
+/* Habits page uses standard UI layout inside the notebook */
+.habits-page {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.habits-page h2,
+.habits-page h3,
+.habits-page p {
+  line-height: normal;
+}
+
+.habit-heatmap .heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: default;
+}
+
+.habit-heatmap .heatmap-legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* Case engine pages */
+.case-page {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.case-page h2,
+.case-page h3,
+.case-page p,
+.case-page button {
+  line-height: normal;
+}
+
+.sticky-note {
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.case-btn-primary {
+  @apply rounded-lg bg-blue-600 px-5 py-2.5 font-body text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50;
+}
+
+.case-btn-secondary {
+  @apply rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-body text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-50;
+}
+
+.candidate-thinking {
+  background: #f0f4ff;
+}
+
+.candidate-thinking-header {
+  background: #f0f4ff;
+  border: none;
+  cursor: pointer;
+}
+
+.candidate-thinking-header:hover {
+  background: #e8eeff;
+}
+
+.candidate-thinking-body {
+  background: #f0f4ff;
+}
+
+.candidate-says {
+  background: #ffffff;
+  border-left: 4px solid #4a90d9;
+}
+
+.candidate-coach {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+}
