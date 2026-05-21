@@ -5,6 +5,7 @@ import CaseLanding from './CaseLanding';
 import WalkthroughView from './WalkthroughView';
 import PracticeSession from './PracticeSession';
 import DiagnosticModal from './DiagnosticModal';
+import LoadingLine from '../layout/LoadingLine';
 import { needsDiagnostic } from '../../utils/caseSessionStorage';
 import { submitDiagnostic } from '../../services/interviewApi';
 
@@ -43,8 +44,8 @@ export default function CasePage({ caseType, title }) {
 
   if (checkingDiagnostic) {
     return (
-      <div className="case-page font-body text-gray-500 mt-8 text-center">
-        Loading...
+      <div className="case-page mt-8 py-8">
+        <LoadingLine />
       </div>
     );
   }

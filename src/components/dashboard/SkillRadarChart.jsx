@@ -36,7 +36,7 @@ export default function SkillRadarChart({ liveSessions }) {
       <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">
         Framework Skills
       </h3>
-      <div className="w-full h-[260px]" style={{ background: '#fdf8f0' }}>
+      <div className="w-full chart-min-height h-[260px]" style={{ background: '#fdf8f0', minHeight: 200 }}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%">
             <PolarGrid stroke="#c5d0e6" />

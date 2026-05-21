@@ -73,7 +73,7 @@ export default function ScoreOverTimeChart({ liveSessions }) {
       <h3 className="font-body text-lg font-semibold text-gray-800 mb-4">
         Score Over Time
       </h3>
-      <div className="w-full h-[280px]" style={{ background: '#fdf8f0' }}>
+      <div className="w-full chart-min-height h-[280px]" style={{ background: '#fdf8f0', minHeight: 200 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
             <CartesianGrid stroke="#c5d0e6" strokeDasharray="0" />

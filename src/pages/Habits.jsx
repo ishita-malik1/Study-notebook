@@ -4,6 +4,7 @@ import HabitCard from '../components/habits/HabitCard';
 import StreakCard from '../components/habits/StreakCard';
 import HabitHeatmap from '../components/habits/HabitHeatmap';
 import Toast from '../components/habits/Toast';
+import LoadingLine from '../components/layout/LoadingLine';
 import { useHabits } from '../hooks/useHabits';
 import { useStreaks } from '../hooks/useStreaks';
 import { HABIT_DEFINITIONS } from '../constants/habits';
@@ -32,7 +33,9 @@ export default function Habits() {
         </h2>
 
         {loading && (
-          <p className="font-body text-sm text-gray-500">Loading habits...</p>
+          <div className="py-6 max-w-xs">
+            <LoadingLine />
+          </div>
         )}
 
         {error && !loading && (

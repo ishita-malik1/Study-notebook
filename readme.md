@@ -26,6 +26,14 @@ Daily boolean tracking for four habits: five job applications, two recruiter or 
 
 Data loads from `GET /api/progress`; all chart math runs client-side in `src/utils/progressMetrics.js`.
 
+**Daily Summary**
+
+After 5pm, **End My Day** in the bottom strip opens a full-page review: today’s habits, optional practice recap, cumulative reminders, and AI **Tomorrow’s Focus** via `POST /api/generateSummary`.
+
+**Review Bank** (`/review-bank`)
+
+Browse saved live and walkthrough sessions (newest 50). Filter by type or score band; expand cards for step bars, learnings, and full conversation modal. `GET /api/sessions`.
+
 ---
 
 ## Tech Stack

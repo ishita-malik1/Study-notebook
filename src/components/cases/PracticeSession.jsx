@@ -92,7 +92,10 @@ export default function PracticeSession({
           {practice.messages.map((msg) => (
             <div
               key={msg.id}
-              className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
+              className={[
+                'chat-message-enter',
+                msg.role === 'user' ? 'flex justify-end' : 'flex justify-start',
+              ].join(' ')}
             >
               {msg.role === 'assistant' ? (
                 <div className="max-w-[92%] sm:max-w-[85%]">
