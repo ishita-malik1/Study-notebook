@@ -1,10 +1,10 @@
-import PageHeading from '../components/layout/PageHeading';
+import CasePage from '../components/cases/CasePage';
 
 export default function ProductCase() {
   return (
-    <div>
-      <PageHeading>Product Case Interview Practice</PageHeading>
-      <p className="page-placeholder">Loading your session...</p>
-    </div>
+    <CasePage
+      caseType="product"
+      title="Product Case Interview Practice"
+    />
   );
 }

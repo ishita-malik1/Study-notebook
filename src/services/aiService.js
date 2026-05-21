@@ -1,5 +1,15 @@
-export async function generateCase(params) {}
+import { generateCasePair, savePracticeSession } from './caseApi';
 
-export async function evaluateSession(sessionId, responses) {}
+export async function generateCase(params) {
+  return generateCasePair(params);
+}
 
-export async function generateSummary(sessionId) {}
+export { savePracticeSession };
+
+export async function evaluateSession() {
+  throw new Error('Not implemented');
+}
+
+export async function generateSummary() {
+  throw new Error('Not implemented');
+}

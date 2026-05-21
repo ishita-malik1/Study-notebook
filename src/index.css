@@ -127,3 +127,58 @@ body {
   height: 12px;
   border-radius: 2px;
 }
+
+/* Case engine pages */
+.case-page {
+  font-family: 'Lato', system-ui, sans-serif;
+  line-height: normal;
+}
+
+.case-page h2,
+.case-page h3,
+.case-page p,
+.case-page button {
+  line-height: normal;
+}
+
+.sticky-note {
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.case-btn-primary {
+  @apply rounded-lg bg-blue-600 px-5 py-2.5 font-body text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50;
+}
+
+.case-btn-secondary {
+  @apply rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-body text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-50;
+}
+
+.candidate-thinking {
+  background: #f0f4ff;
+}
+
+.candidate-thinking-header {
+  background: #f0f4ff;
+  border: none;
+  cursor: pointer;
+}
+
+.candidate-thinking-header:hover {
+  background: #e8eeff;
+}
+
+.candidate-thinking-body {
+  background: #f0f4ff;
+}
+
+.candidate-says {
+  background: #ffffff;
+  border-left: 4px solid #4a90d9;
+}
+
+.candidate-coach {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+}

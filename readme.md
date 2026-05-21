@@ -55,6 +55,15 @@ Create two containers in database `studynotebook` (partition key `/id`):
 
 - `habits` — daily habit documents (`habit-YYYY-MM-DD`)
 - `streaks` — single document `streaks-main`
+- `practice_sessions` — saved walkthrough sessions (partition key `/id`)
+
+Add to `api/local.settings.json` and Azure Portal for case generation:
+
+| Variable | Purpose |
+|----------|---------|
+| `AZURE_OPENAI_ENDPOINT` | e.g. `https://YOUR-RESOURCE.openai.azure.com` |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI key |
+| `AZURE_OPENAI_DEPLOYMENT` | Deployment name (e.g. `gpt-4o`) |
 
 ## Habits API
 
@@ -65,6 +74,8 @@ Create two containers in database `studynotebook` (partition key `/id`):
 | POST | `/api/habits` | Toggle habit `{ date, habitKey, value }` |
 | GET | `/api/streaks` | Streak document |
 | POST | `/api/streaks` | Upsert streak document |
+| POST | `/api/generateCase` | Generate walkthrough + practice case pair |
+| POST | `/api/savePracticeSession` | Save walkthrough to review bank |
 
 ## Routes
 

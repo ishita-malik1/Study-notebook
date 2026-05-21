@@ -26,7 +26,12 @@ function getStreaksContainer() {
   return getDatabase().container('streaks');
 }
 
+function getPracticeSessionsContainer() {
+  return getDatabase().container('practice_sessions');
+}
+
 module.exports = {
   getHabitsContainer,
   getStreaksContainer,
+  getPracticeSessionsContainer,
 };
