@@ -18,7 +18,7 @@ const {
 
 const MAX_ATTEMPTS = 3;
 const MIN_CONVERSATION_LENGTH = 12;
-const MIN_THINKING_LEN = 40;
+const MIN_THINKING_LEN = 400;
 const MIN_SAYS_LEN = 40;
 const MIN_COACH_LEN = 12;
 
@@ -252,6 +252,7 @@ ${adaptiveBlock}
 
 CRITICAL JSON REQUIREMENTS:
 - Every candidate message MUST include "thinking", "says", and "coachNote" as separate non-empty strings
+- Every "thinking" block MUST follow THINKING FIELD RULES: all five parts in order, minimum 6-8 sentences total, case-specific detail
 - Every message (including EVERY interviewer turn) MUST include "stepId" as "step1" through "step8"
 - Minimum 16 messages in the conversation (8 steps × 2+ exchanges each)
 - Include at least one candidate message per step (step1 through step8)
