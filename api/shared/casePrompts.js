@@ -39,13 +39,14 @@ Your VP of Product says: 'We're hemorrhaging Pro subscribers exactly 30 days aft
 const WALKTHROUGH_CONVERSATION_RULES = `
 WALKTHROUGH CONVERSATION RULES:
 
-Each candidate turn must have THREE layers:
+Each candidate turn must have FOUR required fields:
 
-1. thinking (internal monologue — what the candidate is reasoning through before they speak. This is the most important teaching element.)
-2. says (what the candidate actually says out loud to the interviewer)
-3. coachNote (one sentence explaining what skill or technique this moment demonstrates — written to the learner, not the candidate)
+1. thinking (internal monologue — continuous prose covering five implicit parts; see THINKING FIELD RULES)
+2. commonSlip (one sentence — the specific mistake a weaker candidate makes at this step in THIS case; must be case-specific, not generic; mirrors the "temptation to avoid" in thinking but stands alone for the learner UI)
+3. says (what the candidate actually says out loud to the interviewer)
+4. coachNote (one sentence explaining what skill or technique this moment demonstrates — written to the learner, not the candidate)
 
-Each interviewer turn must use "content" field (NOT thinking/says/coachNote):
+Each interviewer turn must use "content" field (NOT thinking/commonSlip/says/coachNote):
 - Brief (1-2 sentences max)
 - Neutral — never validating ("good point") or leading ("have you considered X")
 - Either probing deeper OR transitioning naturally to the next area
@@ -110,6 +111,13 @@ WHAT TO AVOID IN THINKING BLOCKS:
 
 Every thought must be anchored to a specific detail in this case.
 
+COMMON_SLIP field rules:
+- Required on every candidate turn as "commonSlip"
+- Exactly one sentence describing what a weaker candidate would do wrong at this moment in this case
+- Must name the specific mistake (not "jumping to solutions" — say what solution they would propose and why it fails here)
+- Must NOT repeat the thinking block verbatim — distill the temptation from part 2 into one sharp sentence
+- Must be case-specific; never generic interview advice
+
 SAYS layer rules:
 - Must sound like a real person speaking, not a textbook
 - Specific — reference the case details, not generic PM language
@@ -125,9 +133,9 @@ COACH_NOTE rules:
 CONVERSATION LENGTH:
 - Each of the 8 steps must have at minimum:
   - 1 interviewer opening message
-  - 1 candidate response (with thinking, says, coachNote)
+  - 1 candidate response (with thinking, commonSlip, says, coachNote)
   - 1 interviewer follow-up or probe
-  - 1 candidate response going deeper (with thinking, says, coachNote)
+  - 1 candidate response going deeper (with thinking, commonSlip, says, coachNote)
 - Total conversation: minimum 25-30 exchanges
 - Do not rush through steps — depth over speed
 
@@ -142,6 +150,7 @@ EXAMPLE OF A STRONG CANDIDATE RESPONSE — match this quality:
 {
   "role": "candidate",
   "thinking": "The case mentions Pro subscribers dropping at day 30 — that number is specific enough to matter. I notice the VP framed this as product fit vs onboarding, which means they have not ruled out either path yet and I should not either. The temptation here is to immediately segment by power users vs casual users because it sounds rigorous, but that is too broad before I know where in the journey the drop happens. I am going to ask about the funnel location first rather than trend over time, because a timing misread would send me down the wrong solution space entirely. I am not bringing up competitor moves yet even though Adobe Express is in the brief — external factors before internal diagnosis reads like excuse-making. I will phrase this as a clarifying question, not a hypothesis, because I do not have enough signal to assert anything.",
+  "commonSlip": "A weaker candidate would immediately split Canva Pro users into power vs casual segments before confirming where in the signup-to-day-30 journey the drop actually occurs.",
   "says": "Before I go broad, I want to make sure I'm solving for the right user...",
   "coachNote": "Notice the candidate picks ONE segment and justifies the choice using case evidence.",
   "stepId": "step2",
