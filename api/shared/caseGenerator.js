@@ -17,9 +17,11 @@ const {
 } = require('./adaptiveCaseConfig');
 
 const MAX_ATTEMPTS = 3;
-const MIN_CONVERSATION_LENGTH = 12;
-const MIN_THINKING_LEN = 400;
-const MIN_COMMON_SLIP_LEN = 40;
+const MAX_CONVERSATION_ATTEMPTS = 3;
+const MIN_CONVERSATION_LENGTH = 16;
+const MIN_THINKING_LEN = 180;
+const MAX_COMMON_SLIP_SENTENCES = 2;
+const MIN_COMMON_SLIP_LEN = 30;
 const MIN_SAYS_LEN = 40;
 const MIN_COACH_LEN = 12;
 
@@ -61,6 +63,100 @@ function getStepName(stepId, frameworkSteps) {
   return step?.name || stepId;
 }
 
+function normalizeParsedShape(parsed) {
+  if (!parsed || typeof parsed !== 'object') return parsed;
+  return {
+    ...parsed,
+    walkthroughCase:
+      parsed.walkthroughCase ||
+      parsed.walkthrough_case ||
+      parsed.walkthrough ||
+      null,
+    practiceCase:
+      parsed.practiceCase ||
+      parsed.practice_case ||
+      parsed.practice ||
+      null,
+  };
+}
+
+function countSentences(text) {
+  if (!text) return 0;
+  const parts = text.match(/[^.!?]+[.!?]+/g);
+  return parts ? parts.length : 1;
+}
+
+function wordOverlapRatio(a, b) {
+  const tokenize = (s) =>
+    new Set(
+      String(s)
+        .toLowerCase()
+        .replace(/[^\w\s]/g, ' ')
+        .split(/\s+/)
+        .filter((w) => w.length > 4)
+    );
+  const wordsA = tokenize(a);
+  const wordsB = tokenize(b);
+  if (wordsA.size === 0 || wordsB.size === 0) return 0;
+  let overlap = 0;
+  wordsA.forEach((w) => {
+    if (wordsB.has(w)) overlap += 1;
+  });
+  return overlap / Math.min(wordsA.size, wordsB.size);
+}
+
+function getFieldSeparationErrors(message) {
+  const errors = [];
+  const { thinking, commonSlip, says, coachNote } = message;
+  if (!thinking) return errors;
+
+  if (
+    /\b(weak(er)? candidate|most candidates (?:would|do|jump|skip)|temptation|tempting|others would|what not to do|avoid jumping to)\b/i.test(
+      thinking
+    )
+  ) {
+    errors.push(
+      'thinking must not mention mistakes or weak candidates — decision and reasoning only'
+    );
+  }
+
+  if (commonSlip) {
+    if (countSentences(commonSlip) > MAX_COMMON_SLIP_SENTENCES) {
+      errors.push('commonSlip must be one sentence');
+    }
+    if (/\b(instead|you should|should ask|better to|try to|make sure to|avoid)\b/i.test(commonSlip)) {
+      errors.push('commonSlip must not contain advice');
+    }
+    if (wordOverlapRatio(thinking, commonSlip) > 0.45) {
+      errors.push('commonSlip overlaps with thinking');
+    }
+  }
+
+  if (coachNote) {
+    if (
+      /\b(this case|the company|notice how|the candidate|weak candidate|jump to solutions|avoid jumping)\b/i.test(
+        coachNote
+      )
+    ) {
+      errors.push(
+        'coachNote must be a universal technique, not case-specific commentary'
+      );
+    }
+    if (wordOverlapRatio(thinking, coachNote) > 0.4) {
+      errors.push('coachNote overlaps with thinking');
+    }
+    if (commonSlip && wordOverlapRatio(commonSlip, coachNote) > 0.4) {
+      errors.push('coachNote overlaps with commonSlip');
+    }
+  }
+
+  if (says && /\b(I am going to|I will ask|my plan is to|internally)\b/i.test(says)) {
+    errors.push('says must be spoken words only, no meta-commentary');
+  }
+
+  return errors;
+}
+
 function normalizeMessage(message, frameworkSteps) {
   const role = message?.role?.toLowerCase?.();
   const stepId = normalizeStepId(message?.stepId || message?.step);
@@ -77,24 +173,28 @@ function normalizeMessage(message, frameworkSteps) {
   }
 
   if (role === 'candidate') {
+    const thinking =
+      message.thinking ||
+      message.thinkingAloud ||
+      message.internalMonologue ||
+      '';
+    let commonSlip =
+      message.commonSlip ||
+      message.common_slip ||
+      message.commonSlipText ||
+      message.whatNotToDo ||
+      '';
+
     return {
       role: 'candidate',
-      thinking:
-        message.thinking ||
-        message.thinkingAloud ||
-        message.internalMonologue ||
-        '',
+      thinking,
       says:
         message.says ||
         message.said ||
         message.response ||
         message.content ||
         '',
-      commonSlip:
-        message.commonSlip ||
-        message.common_slip ||
-        message.commonSlipText ||
-        '',
+      commonSlip,
       coachNote:
         message.coachNote ||
         message.coach_note ||
@@ -173,7 +273,7 @@ function assignStepIdsToConversation(messages, frameworkSteps) {
   return msgs;
 }
 
-function enrichCase(caseData, frameworkSteps, expectedProblemType) {
+function enrichCase(caseData, frameworkSteps, expectedProblemType, expectedDomain) {
   if (!caseData) return caseData;
 
   const enriched = { ...caseData };
@@ -181,6 +281,10 @@ function enrichCase(caseData, frameworkSteps, expectedProblemType) {
     enriched.problemType,
     expectedProblemType
   );
+
+  if (expectedDomain) {
+    enriched.domain = expectedDomain;
+  }
 
   const parts = [
     enriched.companyProfile,
@@ -210,19 +314,22 @@ function enrichCase(caseData, frameworkSteps, expectedProblemType) {
   return enriched;
 }
 
-function normalizeCasePair(parsed, frameworkSteps, expectedProblemType) {
-  if (!parsed?.walkthroughCase || !parsed?.practiceCase) return parsed;
+function normalizeCasePair(parsed, frameworkSteps, generationPlan) {
+  const shaped = normalizeParsedShape(parsed);
+  if (!shaped?.walkthroughCase || !shaped?.practiceCase) return shaped;
 
   return {
     walkthroughCase: enrichCase(
-      parsed.walkthroughCase,
+      shaped.walkthroughCase,
       frameworkSteps,
-      expectedProblemType
+      generationPlan.problemType,
+      generationPlan.walkthroughDomain
     ),
     practiceCase: enrichCase(
-      parsed.practiceCase,
+      shaped.practiceCase,
       frameworkSteps,
-      expectedProblemType
+      generationPlan.problemType,
+      generationPlan.practiceDomain
     ),
   };
 }
@@ -236,59 +343,37 @@ function buildFrameworkPromptText(steps) {
     .join('\n');
 }
 
-function buildSystemPrompt(type, frameworkSteps, generationPlan) {
+function buildCasesOnlySystemPrompt(type, frameworkSteps, generationPlan) {
   const roleLabel = type === 'tpm' ? 'TPM' : 'PM';
   const adaptiveBlock = buildAdaptivePromptAppendix(generationPlan);
 
-  return `You are a ${roleLabel} interview coach generating a realistic case study walkthrough.
-You will generate TWO cases in one response as a JSON object.
+  return `You are a ${roleLabel} interview coach generating a case study pair.
+You will generate TWO case briefs in one JSON object. Do NOT include a conversation.
 
 ${CASE_QUALITY_RULES}
 
 PAIRING RULES:
-1. Both cases must have the SAME problemType (exact string: use the problem type given in the user message)
-2. The two cases MUST use different companies AND different industry domains
-3. The walkthrough case shows an ideal candidate conversation with AT LEAST ${MIN_CONVERSATION_LENGTH} total messages
-4. The practice case must be a fresh scenario — different company, different domain, same problemType
-5. The conversation must follow these 8 steps in order, never skipping:
-${buildFrameworkPromptText(frameworkSteps)}
+1. Both cases must have the SAME problemType (exact string from the user message)
+2. Different companies AND different industry domains
+3. practiceCase first, then walkthroughCase — each with full problemStatement (120+ chars)
+4. walkthroughCase must NOT include a "conversation" field
 
-${WALKTHROUGH_CONVERSATION_RULES}
+Framework steps (for context only — conversation is generated separately):
+${buildFrameworkPromptText(frameworkSteps)}
 ${adaptiveBlock}
 
-CRITICAL JSON REQUIREMENTS:
-- Every candidate message MUST include "thinking", "commonSlip", "says", and "coachNote" as separate non-empty strings
-- Every "thinking" block MUST follow THINKING FIELD RULES: all five parts in order, minimum 6-8 sentences total, case-specific detail
-- Every "commonSlip" must be one case-specific sentence describing the weaker-candidate mistake at this step (see COMMON_SLIP field rules)
-- Every message (including EVERY interviewer turn) MUST include "stepId" as "step1" through "step8"
-- Minimum 16 messages in the conversation (8 steps × 2+ exchanges each)
-- Include at least one candidate message per step (step1 through step8)
-- problemType must exactly match the user-provided problem type string
-
-Return JSON with this exact shape:
+Return JSON:
 {
-  "walkthroughCase": {
+  "practiceCase": {
     "problemStatement": string,
     "companyProfile": string,
     "situationBrief": string,
     "theAsk": string,
     "company": string,
     "domain": string,
-    "problemType": string,
-    "conversation": [
-      { "role": "interviewer", "content": string, "stepId": "step1", "stepName": string },
-      {
-        "role": "candidate",
-        "thinking": string,
-        "commonSlip": string,
-        "says": string,
-        "coachNote": string,
-        "stepId": "step1",
-        "stepName": string
-      }
-    ]
+    "problemType": string
   },
-  "practiceCase": {
+  "walkthroughCase": {
     "problemStatement": string,
     "companyProfile": string,
     "situationBrief": string,
@@ -298,6 +383,69 @@ Return JSON with this exact shape:
     "problemType": string
   }
 }`;
+}
+
+function buildConversationSystemPrompt(type, frameworkSteps, generationPlan) {
+  const roleLabel = type === 'tpm' ? 'TPM' : 'PM';
+  const adaptiveBlock = buildAdaptivePromptAppendix(generationPlan);
+
+  return `You are a ${roleLabel} interview coach generating ONLY the ideal walkthrough conversation for a case already defined by the user.
+
+The conversation must follow these 8 steps in order:
+${buildFrameworkPromptText(frameworkSteps)}
+
+${WALKTHROUGH_CONVERSATION_RULES}
+${adaptiveBlock}
+
+CRITICAL:
+- Return JSON: { "conversation": [ ... ] }
+- The conversation array MUST contain at least ${MIN_CONVERSATION_LENGTH} messages
+- For each of step1 through step8: at least 1 interviewer message AND at least 1 candidate message (8 candidate turns minimum)
+- Prefer 2 exchanges per step (interviewer → candidate → interviewer → candidate) = 32 messages when possible
+- Every candidate message: thinking, commonSlip, says, coachNote, stepId, stepName
+- Each of the four candidate fields must carry UNIQUE information — see FIELD DEFINITIONS and VALIDATION rules
+- thinking = decision fork only; commonSlip = one-sentence mistake observation; says = spoken words; coachNote = universal interview technique
+- Every interviewer message: content, stepId, stepName
+- Do not truncate — complete the full conversation through step8`;
+}
+
+function buildConversationUserPrompt(walkthroughCase, validationErrors, attemptIndex) {
+  const context = {
+    company: walkthroughCase.company,
+    domain: walkthroughCase.domain,
+    problemType: walkthroughCase.problemType,
+    problemStatement: walkthroughCase.problemStatement,
+  };
+
+  let prompt = `Generate the walkthrough conversation for this case:\n${JSON.stringify(context, null, 2)}\n\nReturn ONLY valid JSON with a "conversation" array.`;
+
+  if (validationErrors?.length && attemptIndex > 0) {
+    prompt += `\n\nPREVIOUS ATTEMPT FAILED:\n${validationErrors.map((e) => `- ${e}`).join('\n')}\n\nYou MUST return at least ${MIN_CONVERSATION_LENGTH} messages covering all 8 steps. Each candidate turn: thinking = decision fork only; commonSlip = one-sentence mistake (no advice); says = spoken words; coachNote = universal technique (no case/company names). No redundant fields.`;
+  }
+
+  return prompt;
+}
+
+function buildCasesRetryUserPrompt(basePrompt, validationErrors, attemptIndex) {
+  if (!validationErrors?.length || attemptIndex === 0) return basePrompt;
+
+  return `${basePrompt}
+
+PREVIOUS OUTPUT FAILED VALIDATION. Fix every issue:
+${validationErrors.map((e) => `- ${e}`).join('\n')}
+
+Critical: include complete practiceCase and walkthroughCase with problemStatement (120+ chars). Do NOT include conversation.`;
+}
+
+function normalizeConversation(raw, frameworkSteps) {
+  const list = raw?.conversation || raw?.messages || raw;
+  if (!Array.isArray(list)) return [];
+
+  const normalized = list
+    .map((m) => normalizeMessage(m, frameworkSteps))
+    .filter(Boolean);
+
+  return assignStepIdsToConversation(normalized, frameworkSteps);
 }
 
 function buildUserPrompt(type, generationPlan) {
@@ -346,10 +494,13 @@ function getCandidateValidationErrors(message) {
   if (!message.coachNote || message.coachNote.length < MIN_COACH_LEN) {
     errors.push(`coachNote too short (${message.coachNote?.length || 0})`);
   }
+
+  errors.push(...getFieldSeparationErrors(message));
+
   return errors;
 }
 
-function getValidationErrors(result, generationPlan) {
+function getCasePairErrors(result, generationPlan) {
   const expectedProblemType = generationPlan.problemType;
   const errors = [];
   const walk = result?.walkthroughCase;
@@ -415,7 +566,12 @@ function getValidationErrors(result, generationPlan) {
     );
   }
 
-  const conversation = walk.conversation;
+  return errors;
+}
+
+function getConversationErrors(conversation, frameworkSteps) {
+  const errors = [];
+
   if (!Array.isArray(conversation)) {
     errors.push('conversation is not an array');
     return errors;
@@ -457,9 +613,9 @@ function getValidationErrors(result, generationPlan) {
     }
   });
 
-  const minCandidates = conversation.length >= 16 ? 8 : 4;
-  const minInterviewers = conversation.length >= 16 ? 8 : 4;
-  const minStepsWithCandidate = conversation.length >= 16 ? 8 : 4;
+  const minCandidates = 8;
+  const minInterviewers = 8;
+  const minStepsWithCandidate = 8;
 
   if (candidateCount < minCandidates) {
     errors.push(
@@ -482,6 +638,15 @@ function getValidationErrors(result, generationPlan) {
   }
 
   return errors;
+}
+
+function getValidationErrors(result, generationPlan) {
+  const errors = getCasePairErrors(result, generationPlan);
+  const walk = result?.walkthroughCase;
+  if (!walk || errors.length > 0) return errors;
+
+  const conversation = walk.conversation;
+  return errors.concat(getConversationErrors(conversation));
 }
 
 function validateCasePair(result, generationPlan) {
@@ -535,26 +700,98 @@ async function generateWalkthroughPair({
     generationPlan = buildFallbackPlan(type);
   }
 
-  const systemPrompt = buildSystemPrompt(type, frameworkSteps, generationPlan);
-  const userPrompt = buildUserPrompt(type, generationPlan);
+  const casesSystemPrompt = buildCasesOnlySystemPrompt(
+    type,
+    frameworkSteps,
+    generationPlan
+  );
+  const baseUserPrompt = buildUserPrompt(type, generationPlan);
 
+  let casePair = null;
   let lastError;
-  let lastValidationErrors = [];
+  let lastCaseErrors = [];
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+    const userPrompt = buildCasesRetryUserPrompt(
+      baseUserPrompt,
+      lastCaseErrors,
+      attempt
+    );
+
     try {
-      const raw = await callOpenAI(systemPrompt, userPrompt);
+      const raw = await callOpenAI(casesSystemPrompt, userPrompt);
       const parsed = normalizeCasePair(
         parseModelJson(raw),
         frameworkSteps,
-        generationPlan.problemType
+        generationPlan
       );
 
-      const validationErrors = getValidationErrors(parsed, generationPlan);
+      const caseErrors = getCasePairErrors(parsed, generationPlan);
 
-      if (validationErrors.length === 0) {
+      if (caseErrors.length === 0) {
+        casePair = parsed;
+        break;
+      }
+
+      lastCaseErrors = caseErrors;
+      log(
+        `generateCase cases attempt ${attempt + 1} validation failed:`,
+        caseErrors.join('; ')
+      );
+      lastError = new Error(
+        `Case briefs failed validation: ${caseErrors.slice(0, 5).join('; ')}`
+      );
+    } catch (err) {
+      lastError = err;
+      log(`generateCase cases attempt ${attempt + 1} error:`, err.message);
+    }
+  }
+
+  if (!casePair) {
+    if (lastCaseErrors.length) {
+      throw new Error(
+        `Case briefs failed validation after ${MAX_ATTEMPTS} attempts. Issues: ${lastCaseErrors.slice(0, 6).join('; ')}`
+      );
+    }
+    throw lastError || new Error('Failed to generate case briefs');
+  }
+
+  const conversationSystemPrompt = buildConversationSystemPrompt(
+    type,
+    frameworkSteps,
+    generationPlan
+  );
+
+  let lastConversationErrors = [];
+
+  for (let attempt = 0; attempt < MAX_CONVERSATION_ATTEMPTS; attempt += 1) {
+    const userPrompt = buildConversationUserPrompt(
+      casePair.walkthroughCase,
+      lastConversationErrors,
+      attempt
+    );
+
+    try {
+      const raw = await callOpenAI(conversationSystemPrompt, userPrompt);
+      const parsed = parseModelJson(raw);
+      const conversation = normalizeConversation(parsed, frameworkSteps);
+
+      const conversationErrors = getConversationErrors(
+        conversation,
+        frameworkSteps
+      );
+
+      if (conversationErrors.length === 0) {
+        const result = {
+          ...casePair,
+          walkthroughCase: {
+            ...casePair.walkthroughCase,
+            conversation,
+          },
+        };
+
         return {
-          ...parsed,
+          ...result,
           generationMeta: {
             problemType: generationPlan.problemType,
             difficultyLevel: generationPlan.difficultyLevel,
@@ -566,33 +803,35 @@ async function generateWalkthroughPair({
         };
       }
 
-      lastValidationErrors = validationErrors;
+      lastConversationErrors = conversationErrors;
       log(
-        `generateCase attempt ${attempt + 1} validation failed:`,
-        validationErrors.join('; ')
+        `generateCase conversation attempt ${attempt + 1} validation failed:`,
+        conversationErrors.join('; ')
       );
       lastError = new Error(
-        `Generated cases failed validation: ${validationErrors.slice(0, 5).join('; ')}`
+        `Conversation failed validation: ${conversationErrors.slice(0, 5).join('; ')}`
       );
     } catch (err) {
       lastError = err;
-      log(`generateCase attempt ${attempt + 1} error:`, err.message);
+      log(`generateCase conversation attempt ${attempt + 1} error:`, err.message);
     }
   }
 
-  if (lastValidationErrors.length) {
+  if (lastConversationErrors.length) {
     throw new Error(
-      `Generated cases failed validation after ${MAX_ATTEMPTS} attempts. Issues: ${lastValidationErrors.slice(0, 6).join('; ')}`
+      `Conversation failed validation after ${MAX_CONVERSATION_ATTEMPTS} attempts. Issues: ${lastConversationErrors.slice(0, 6).join('; ')}`
     );
   }
 
-  throw lastError || new Error('Failed to generate valid case pair');
+  throw lastError || new Error('Failed to generate walkthrough conversation');
 }
 
 module.exports = {
   generateWalkthroughPair,
   validateCasePair,
   getValidationErrors,
+  getCasePairErrors,
+  getConversationErrors,
   normalizeCasePair,
   buildGenerationPlan,
 };

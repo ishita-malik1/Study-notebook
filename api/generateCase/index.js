@@ -59,11 +59,16 @@ module.exports = async function (context, req) {
     context.res = { status: 200, body: result };
   } catch (error) {
     context.log.error('generateCase error:', error.message || error);
+    const message = error.message || 'Failed to generate case';
+    const isValidation =
+      message.includes('validation') || message.includes('truncated');
     context.res = {
-      status: 500,
+      status: isValidation ? 422 : 500,
       body: {
-        error: error.message || 'Failed to generate case',
-        hint: 'Check API logs for validation details. Ensure deployment supports JSON mode and long outputs.',
+        error: message,
+        hint: isValidation
+          ? 'The model output did not pass quality checks. Retry — if this persists, check API logs for validation details.'
+          : 'Check API logs. Ensure Azure OpenAI deployment supports JSON mode and sufficient max_tokens.',
       },
     };
   }

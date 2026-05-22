@@ -39,12 +39,54 @@ Your VP of Product says: 'We're hemorrhaging Pro subscribers exactly 30 days aft
 const WALKTHROUGH_CONVERSATION_RULES = `
 WALKTHROUGH CONVERSATION RULES:
 
-Each candidate turn must have FOUR required fields:
+Each candidate turn must have FOUR required fields. Each field owns exactly ONE thing — no overlap.
 
-1. thinking (internal monologue — continuous prose covering five implicit parts; see THINKING FIELD RULES)
-2. commonSlip (one sentence — the specific mistake a weaker candidate makes at this step in THIS case; must be case-specific, not generic; mirrors the "temptation to avoid" in thinking but stands alone for the learner UI)
-3. says (what the candidate actually says out loud to the interviewer)
-4. coachNote (one sentence explaining what skill or technique this moment demonstrates — written to the learner, not the candidate)
+FIELD DEFINITIONS — exclusive jobs:
+
+"thinking" (Reasoning):
+What decision did the candidate face at this moment, what options were genuinely available, and why did they choose this one over the others.
+ONLY the decision and its reasoning. Sounds like a candidate at a fork in the road.
+- Does NOT warn about mistakes
+- Does NOT give tips
+- Does NOT describe what others get wrong
+- Minimum 4 sentences, first person, present tense
+- Anchor to this case's specifics (metrics, ask, constraints) but stay inside the decision
+
+"commonSlip" (Common Slip):
+Exactly ONE sentence. The specific mistake most candidates make at this exact moment in this exact case.
+- No advice. No reasoning. No "instead you should."
+- Plain observation of the mistake only
+- Case-specific: name what they wrongly do or ask (not "skip user definition")
+- Must NOT repeat or paraphrase thinking
+
+"says":
+Exactly what the candidate said out loud. Spoken words only.
+- No internal thought. No meta-commentary ("I am going to ask...")
+- Reference case details naturally
+- Minimum 2 sentences for substantive steps; 1 sentence ok for brief clarifications
+
+"coachNote" (Interview Tip):
+Exactly ONE sentence. One transferable technique this moment demonstrates.
+- Applies to ANY PM interview — not this case or company
+- Does NOT repeat thinking, commonSlip, or says
+- No "Notice how the candidate..." — state the technique directly
+
+VALIDATION — self-check before outputting each candidate turn:
+- If thinking mentions a mistake or warns what weak candidates do → rewrite: decision and reasoning only
+- If commonSlip contains advice or "instead" → rewrite: mistake observation only
+- If coachNote references the company, product, or case facts → rewrite: universal technique only
+- If any two fields say the same thing in different words → rewrite until each carries unique information
+
+WRONG (redundant — never produce):
+thinking: "I should not jump to solutions because that is what weak candidates do."
+commonSlip: "Most candidates jump to solutions at this point."
+coachNote: "Avoid jumping to solutions before diagnosing."
+
+CORRECT (each field unique):
+thinking: "I have two real options here. I can ask where in the funnel the drop is happening, or how long this has been going on. Both are legitimate first questions. I am choosing funnel location because it tells me whether this is actually a retention problem or an acquisition problem being mislabeled. If users are dropping on day 1, the retention framing is wrong and the entire conversation needs to shift."
+commonSlip: "Most candidates hear 'retention is dropping' and immediately ask what features users are missing, skipping past the question of where in the journey the drop is actually happening."
+says: "Before we get into causes, I want to understand the shape of the problem. Are we seeing users drop off in the first week, or is this happening after they have been active for a while?"
+coachNote: "Asking a scoping question before forming any hypothesis signals structured thinking and buys you time to orient without appearing lost."
 
 Each interviewer turn must use "content" field (NOT thinking/commonSlip/says/coachNote):
 - Brief (1-2 sentences max)
@@ -52,91 +94,13 @@ Each interviewer turn must use "content" field (NOT thinking/commonSlip/says/coa
 - Either probing deeper OR transitioning naturally to the next area
 - Occasionally pushing back to test conviction
 
-THINKING FIELD RULES — this is the most important field in the walkthrough:
-
-The thinking block must cover five things in this order:
-
-1. WHAT I NOTICE
-   What in the case or the interviewer's question is actually worth paying
-   attention to right now. What signal matters and why.
-   Example: "The interviewer said retention is dropping but did not say
-   at what point in the journey. That gap is intentional.
-   I need to ask before I assume."
-
-2. THE TEMPTATION TO AVOID
-   What a weaker candidate would do at this exact moment.
-   Be specific. Name the mistake, not just the category.
-   Example: "The tempting move here is to immediately propose a
-   re-engagement email campaign because it is fast and visible.
-   But that is a solution looking for a problem. I have not
-   diagnosed anything yet. If I go there now I am skipping
-   two steps and it will show."
-
-3. WHAT I AM CHOOSING AND WHY
-   The deliberate decision the candidate makes and the reasoning behind it.
-   Show the trade-off between two or more real options.
-   Example: "I could ask about the metric trend over time or I could
-   ask where in the funnel the drop is happening. Both are valid.
-   I am going with funnel location first because it tells me
-   whether this is an acquisition problem being mislabeled as
-   retention, which would completely change the solution space."
-
-4. WHAT I AM EXPLICITLY NOT DOING
-   One or two things the candidate is consciously setting aside
-   and why. These should be things that look reasonable on the surface.
-   Example: "I am not asking about competitor activity right now
-   even though it is a reasonable hypothesis. Bringing up
-   external factors before I understand internal ones signals
-   that I am looking for an excuse rather than a diagnosis."
-
-5. HOW I AM GOING TO SAY IT
-   A brief note on the communication choice, not just the content choice.
-   Example: "I am going to phrase this as a question rather than
-   a statement because I do not have enough information to assert
-   anything yet. Framing it as curiosity rather than hypothesis
-   keeps the door open."
-
-LENGTH: Each thinking block must be a minimum of 6 to 8 sentences
-across all five parts. Do not compress any part to one sentence.
-
-TONE: First person, present tense. Active and specific.
-No generic PM language. The thinking should sound like
-a real person reasoning in real time, not a textbook.
-
-WHAT TO AVOID IN THINKING BLOCKS:
-- Generic observations like "I need to understand the user"
-- Restating the framework step name
-- Advice that would apply to any case
-- Anything that sounds like a coach explaining theory
-
-Every thought must be anchored to a specific detail in this case.
-
-COMMON_SLIP field rules:
-- Required on every candidate turn as "commonSlip"
-- Exactly one sentence describing what a weaker candidate would do wrong at this moment in this case
-- Must name the specific mistake (not "jumping to solutions" — say what solution they would propose and why it fails here)
-- Must NOT repeat the thinking block verbatim — distill the temptation from part 2 into one sharp sentence
-- Must be case-specific; never generic interview advice
-
-SAYS layer rules:
-- Must sound like a real person speaking, not a textbook
-- Specific — reference the case details, not generic PM language
-- Shows structured thinking without sounding robotic
-- Minimum 4-6 sentences for substantive steps (steps 2-7)
-- Ends with either a signal that they're moving on OR an invitation for the interviewer to respond
-
-COACH_NOTE rules:
-- Written to the learner: "Notice how...", "The key move here is...", "Most candidates fail here by..."
-- Explains WHY this moment matters in an interview context
-- One pointed sentence, no padding
-
 CONVERSATION LENGTH:
 - Each of the 8 steps must have at minimum:
   - 1 interviewer opening message
   - 1 candidate response (with thinking, commonSlip, says, coachNote)
   - 1 interviewer follow-up or probe
   - 1 candidate response going deeper (with thinking, commonSlip, says, coachNote)
-- Total conversation: minimum 25-30 exchanges
+- Total conversation: minimum 16 messages (8 candidate turns); aim for 24-32 with two exchanges per step
 - Do not rush through steps — depth over speed
 
 EXAMPLE OF A POOR CANDIDATE RESPONSE — never generate like this:
@@ -149,10 +113,10 @@ EXAMPLE OF A POOR CANDIDATE RESPONSE — never generate like this:
 EXAMPLE OF A STRONG CANDIDATE RESPONSE — match this quality:
 {
   "role": "candidate",
-  "thinking": "The case mentions Pro subscribers dropping at day 30 — that number is specific enough to matter. I notice the VP framed this as product fit vs onboarding, which means they have not ruled out either path yet and I should not either. The temptation here is to immediately segment by power users vs casual users because it sounds rigorous, but that is too broad before I know where in the journey the drop happens. I am going to ask about the funnel location first rather than trend over time, because a timing misread would send me down the wrong solution space entirely. I am not bringing up competitor moves yet even though Adobe Express is in the brief — external factors before internal diagnosis reads like excuse-making. I will phrase this as a clarifying question, not a hypothesis, because I do not have enough signal to assert anything.",
-  "commonSlip": "A weaker candidate would immediately split Canva Pro users into power vs casual segments before confirming where in the signup-to-day-30 journey the drop actually occurs.",
-  "says": "Before I go broad, I want to make sure I'm solving for the right user...",
-  "coachNote": "Notice the candidate picks ONE segment and justifies the choice using case evidence.",
+  "thinking": "I have two real options here. I can ask where in the funnel the drop is happening, or how long this has been going on. Both are legitimate first questions. I am choosing funnel location because it tells me whether this is actually a retention problem or an acquisition problem being mislabeled. If users are dropping on day 1, the retention framing is wrong and the entire conversation needs to shift.",
+  "commonSlip": "Most candidates hear 'retention is dropping' and immediately ask what features users are missing, skipping past the question of where in the journey the drop is actually happening.",
+  "says": "Before we get into causes, I want to understand the shape of the problem. Are we seeing users drop off in the first week, or is this happening after they have been active for a while? That changes what I would look at significantly.",
+  "coachNote": "Asking a scoping question before forming any hypothesis signals structured thinking and buys you time to orient without appearing lost.",
   "stepId": "step2",
   "stepName": "Define User & Pain Point"
 }

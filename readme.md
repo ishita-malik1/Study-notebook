@@ -10,7 +10,13 @@ The four tabs in this tool map to the four things a serious job seeker has to do
 
 **Interview Practice**
 
-Walkthrough mode shows an ideal interview conversation with the candidate's internal reasoning and coach notes visible at every step. Live mode puts the AI in the interviewer seat. You answer, it probes, and at the end it scores your performance across all 8 framework dimensions. Sessions adapt to your weak areas over time.
+Walkthrough mode shows an ideal interview conversation structured into four distinct, non-overlapping layers to ensure high pedagogical value:
+- **Reasoning:** The candidate's internal decision process when facing a fork in the road (the options available and why one was chosen).
+- **Common Slip:** A plain, case-specific callout of the specific mistake a weaker candidate would make at this exact moment.
+- **Said:** The exact words spoken out loud to the interviewer.
+- **Interview Tip:** A universally applicable, transferable technique the learner can use in any interview.
+
+Live mode puts the AI in the interviewer seat. You answer, it probes, and at the end it scores your performance across all 8 framework dimensions. Sessions adapt to your weak areas over time.
 
 Both Product Manager and TPM tracks are supported. Each session pairs a walkthrough case and a practice case on the same problem type but in different industries, so you learn the pattern from one context and apply it independently in another.
 
@@ -33,6 +39,13 @@ After 5pm, **End My Day** in the bottom strip opens a full-page review: today’
 **Review Bank** (`/review-bank`)
 
 Browse saved live and walkthrough sessions (newest 50). Filter by type or score band; expand cards for step bars, learnings, and full conversation modal. `GET /api/sessions`.
+
+**Responsive Breakpoint System**
+
+The entire application dynamically adapts across three unified breakpoints using Tailwind and CSS properties:
+- **Desktop (960px and above):** Full-sized layout with a 60px wide/18-ring spiral binding, full tab labels, side-by-side grids, and 280px chart heights.
+- **Tablet (600px to 959px):** Optimized layout with a 40px wide/12-ring spiral binding, slightly smaller fonts, 2x2 habit streak cards, and 260px chart heights.
+- **Mobile (below 600px):** Ultra-streamlined layout with a 24px wide/8-ring spiral (10px ring diameter), no red margin line offset (content padded 12px), icon-only nav tabs with a small 9px label, stacked bottom strip, 220px charts, a compact 30-day heatmap (with 12px tap targets), single-column cards, sticky chat inputs, and full-width stacked scoring feedback.
 
 ---
 

@@ -14,7 +14,7 @@ export default function CandidateMessageCard({ message }) {
         {thinking && (
           <div className="candidate-thinking px-4 py-3">
             <span className="candidate-section-label candidate-section-label--reasoning block mb-2">
-              💭 Internal reasoning
+              💭 Reasoning
             </span>
             <p className="candidate-thinking-body font-body text-sm text-gray-600">
               {thinking}
