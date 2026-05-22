@@ -18,7 +18,8 @@ const {
 
 const MAX_ATTEMPTS = 3;
 const MIN_CONVERSATION_LENGTH = 12;
-const MIN_THINKING_LEN = 40;
+const MIN_THINKING_LEN = 400;
+const MIN_COMMON_SLIP_LEN = 40;
 const MIN_SAYS_LEN = 40;
 const MIN_COACH_LEN = 12;
 
@@ -88,6 +89,11 @@ function normalizeMessage(message, frameworkSteps) {
         message.said ||
         message.response ||
         message.content ||
+        '',
+      commonSlip:
+        message.commonSlip ||
+        message.common_slip ||
+        message.commonSlipText ||
         '',
       coachNote:
         message.coachNote ||
@@ -251,7 +257,9 @@ ${WALKTHROUGH_CONVERSATION_RULES}
 ${adaptiveBlock}
 
 CRITICAL JSON REQUIREMENTS:
-- Every candidate message MUST include "thinking", "says", and "coachNote" as separate non-empty strings
+- Every candidate message MUST include "thinking", "commonSlip", "says", and "coachNote" as separate non-empty strings
+- Every "thinking" block MUST follow THINKING FIELD RULES: all five parts in order, minimum 6-8 sentences total, case-specific detail
+- Every "commonSlip" must be one case-specific sentence describing the weaker-candidate mistake at this step (see COMMON_SLIP field rules)
 - Every message (including EVERY interviewer turn) MUST include "stepId" as "step1" through "step8"
 - Minimum 16 messages in the conversation (8 steps × 2+ exchanges each)
 - Include at least one candidate message per step (step1 through step8)
@@ -267,7 +275,18 @@ Return JSON with this exact shape:
     "company": string,
     "domain": string,
     "problemType": string,
-    "conversation": [ ... ]
+    "conversation": [
+      { "role": "interviewer", "content": string, "stepId": "step1", "stepName": string },
+      {
+        "role": "candidate",
+        "thinking": string,
+        "commonSlip": string,
+        "says": string,
+        "coachNote": string,
+        "stepId": "step1",
+        "stepName": string
+      }
+    ]
   },
   "practiceCase": {
     "problemStatement": string,
@@ -317,6 +336,9 @@ function getCandidateValidationErrors(message) {
   }
   if (!message.thinking || message.thinking.length < MIN_THINKING_LEN) {
     errors.push(`thinking too short (${message.thinking?.length || 0})`);
+  }
+  if (!message.commonSlip || message.commonSlip.length < MIN_COMMON_SLIP_LEN) {
+    errors.push(`commonSlip too short (${message.commonSlip?.length || 0})`);
   }
   if (!message.says || message.says.length < MIN_SAYS_LEN) {
     errors.push(`says too short (${message.says?.length || 0})`);

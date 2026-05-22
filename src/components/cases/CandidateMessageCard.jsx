@@ -1,9 +1,6 @@
-import { useState } from 'react';
-
 export default function CandidateMessageCard({ message }) {
-  const [thinkingOpen, setThinkingOpen] = useState(true);
-
   const thinking = message.thinking || '';
+  const commonSlip = message.commonSlip || '';
   const says = message.says || message.content || '';
   const coachNote = message.coachNote || '';
 
@@ -13,32 +10,26 @@ export default function CandidateMessageCard({ message }) {
         Ideal Answer
       </span>
 
-      <div className="candidate-card-inner flex flex-col gap-2 rounded-lg overflow-hidden border border-[#e8dcc8] shadow-sm">
+      <div className="candidate-card-inner flex flex-col rounded-lg overflow-hidden border border-[#e8dcc8] shadow-sm">
         {thinking && (
-          <div className="candidate-thinking">
-            <button
-              type="button"
-              onClick={() => setThinkingOpen((open) => !open)}
-              className="candidate-thinking-header w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
-            >
-              <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-                💭 Thinking
-              </span>
-              <span
-                className="text-gray-400 text-xs transition-transform"
-                aria-hidden
-                style={{
-                  transform: thinkingOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                }}
-              >
-                ›
-              </span>
-            </button>
-            {thinkingOpen && (
-              <p className="candidate-thinking-body px-3 pb-3 font-body text-sm italic leading-relaxed text-gray-600">
-                {thinking}
-              </p>
-            )}
+          <div className="candidate-thinking px-4 py-3">
+            <span className="candidate-section-label candidate-section-label--reasoning block mb-2">
+              💭 Internal reasoning
+            </span>
+            <p className="candidate-thinking-body font-body text-sm text-gray-600">
+              {thinking}
+            </p>
+          </div>
+        )}
+
+        {commonSlip && (
+          <div className="candidate-common-slip px-4 py-3">
+            <span className="candidate-section-label candidate-section-label--slip block mb-2">
+              ⚠️ Common slip
+            </span>
+            <p className="font-body text-sm leading-relaxed text-gray-800">
+              {commonSlip}
+            </p>
           </div>
         )}
 
