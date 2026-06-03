@@ -7,6 +7,7 @@ export default function HabitCard({
   streak,
   onComplete,
   disabled,
+  manual = true,
 }) {
   const streakText =
     streak?.current > 0
@@ -24,14 +25,21 @@ export default function HabitCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3
-            className={[
-              'font-body text-base font-semibold',
-              completed ? 'text-gray-500 line-through' : 'text-gray-800',
-            ].join(' ')}
-          >
-            {name}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3
+              className={[
+                'font-body text-base font-semibold',
+                completed ? 'text-gray-500 line-through' : 'text-gray-800',
+              ].join(' ')}
+            >
+              {name}
+            </h3>
+            {!manual && (
+              <span className="text-[10px] font-semibold font-body px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                Auto-tracked
+              </span>
+            )}
+          </div>
           <p
             className={[
               'font-body mt-1 text-sm',
@@ -44,7 +52,7 @@ export default function HabitCard({
         <HabitCheck
           completed={completed}
           onComplete={onComplete}
-          disabled={disabled || completed}
+          disabled={disabled || completed || !manual}
         />
       </div>
       <p className="font-body text-sm text-gray-600">{streakText}</p>
