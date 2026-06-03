@@ -18,12 +18,12 @@ const {
 
 const MAX_ATTEMPTS = 3;
 const MAX_CONVERSATION_ATTEMPTS = 3;
-const MIN_CONVERSATION_LENGTH = 16;
-const MIN_THINKING_LEN = 180;
+const MIN_CONVERSATION_LENGTH = 12;
+const MIN_THINKING_LEN = 140;
 const MAX_COMMON_SLIP_SENTENCES = 2;
-const MIN_COMMON_SLIP_LEN = 30;
-const MIN_SAYS_LEN = 40;
-const MIN_COACH_LEN = 12;
+const MIN_COMMON_SLIP_LEN = 25;
+const MIN_SAYS_LEN = 35;
+const MIN_COACH_LEN = 10;
 
 const REQUIRED_STEPS = [
   'step1',
@@ -241,7 +241,7 @@ function assignStepIdsToConversation(messages, frameworkSteps) {
     (s) => !stepsWithCandidate.has(s)
   );
 
-  if (missingCandidateSteps.length > 0) {
+  if (stepsWithCandidate.size < 6) {
     const candidates = msgs.filter((m) => m.role === 'candidate');
     if (candidates.length > 0) {
       candidates.forEach((msg, i) => {
@@ -391,7 +391,7 @@ function buildConversationSystemPrompt(type, frameworkSteps, generationPlan) {
 
   return `You are a ${roleLabel} interview coach generating ONLY the ideal walkthrough conversation for a case already defined by the user.
 
-The conversation must follow these 8 steps in order:
+The conversation must follow the 8-step framework in order:
 ${buildFrameworkPromptText(frameworkSteps)}
 
 ${WALKTHROUGH_CONVERSATION_RULES}
@@ -400,13 +400,13 @@ ${adaptiveBlock}
 CRITICAL:
 - Return JSON: { "conversation": [ ... ] }
 - The conversation array MUST contain at least ${MIN_CONVERSATION_LENGTH} messages
-- For each of step1 through step8: at least 1 interviewer message AND at least 1 candidate message (8 candidate turns minimum)
-- Prefer 2 exchanges per step (interviewer → candidate → interviewer → candidate) = 32 messages when possible
+- Cover at least 6 steps relevant to this case type (select the 6 most impactful steps from the 8-step framework).
+- For each covered step: at least 1 interviewer message AND at least 1 candidate message (6 candidate turns minimum total)
 - Every candidate message: thinking, commonSlip, says, coachNote, stepId, stepName
 - Each of the four candidate fields must carry UNIQUE information — see FIELD DEFINITIONS and VALIDATION rules
-- thinking = decision fork only; commonSlip = one-sentence mistake observation; says = spoken words; coachNote = universal interview technique
+- thinking = decision fork only (rich but concise, ~4 short sentences, first-person present tense); commonSlip = one-sentence mistake observation; says = spoken words (~2-3 short sentences); coachNote = universal interview technique (1 sentence)
 - Every interviewer message: content, stepId, stepName
-- Do not truncate — complete the full conversation through step8`;
+- IMPORTANT: Keep all text highly concise and focused to prevent token latency. Do not generate long paragraphs or fluff.`;
 }
 
 function buildConversationUserPrompt(walkthroughCase, validationErrors, attemptIndex) {
@@ -420,7 +420,7 @@ function buildConversationUserPrompt(walkthroughCase, validationErrors, attemptI
   let prompt = `Generate the walkthrough conversation for this case:\n${JSON.stringify(context, null, 2)}\n\nReturn ONLY valid JSON with a "conversation" array.`;
 
   if (validationErrors?.length && attemptIndex > 0) {
-    prompt += `\n\nPREVIOUS ATTEMPT FAILED:\n${validationErrors.map((e) => `- ${e}`).join('\n')}\n\nYou MUST return at least ${MIN_CONVERSATION_LENGTH} messages covering all 8 steps. Each candidate turn: thinking = decision fork only; commonSlip = one-sentence mistake (no advice); says = spoken words; coachNote = universal technique (no case/company names). No redundant fields.`;
+    prompt += `\n\nPREVIOUS ATTEMPT FAILED:\n${validationErrors.map((e) => `- ${e}`).join('\n')}\n\nYou MUST return at least ${MIN_CONVERSATION_LENGTH} messages covering at least 6 steps. Each candidate turn: thinking = decision fork only; commonSlip = one-sentence mistake (no advice); says = spoken words; coachNote = universal technique (no case/company names). No redundant fields.`;
   }
 
   return prompt;
@@ -613,9 +613,9 @@ function getConversationErrors(conversation, frameworkSteps) {
     }
   });
 
-  const minCandidates = 8;
-  const minInterviewers = 8;
-  const minStepsWithCandidate = 8;
+  const minCandidates = 6;
+  const minInterviewers = 6;
+  const minStepsWithCandidate = 6;
 
   if (candidateCount < minCandidates) {
     errors.push(

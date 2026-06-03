@@ -53,7 +53,8 @@ export default function Habits() {
               completed={habit.completed}
               streak={streaks?.[habit.streakKey]}
               onComplete={() => completeHabit(habit.key)}
-              disabled={loading || togglingKey === habit.key}
+              disabled={loading || togglingKey === habit.key || !habit.manual}
+              manual={habit.manual}
             />
           ))}
         </div>

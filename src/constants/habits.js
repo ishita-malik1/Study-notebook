@@ -6,6 +6,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Applied to 5+ jobs today',
     icon: '💼',
     stripLabel: 'Jobs',
+    manual: true,
   },
   {
     key: 'recruiters_contacted',
@@ -14,6 +15,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Reached out to 2+ recruiters/HMs today',
     icon: '📬',
     stripLabel: 'Outreach',
+    manual: true,
   },
   {
     key: 'product_walkthrough',
@@ -22,6 +24,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Reviewed a Product walkthrough case today',
     icon: '📖',
     stripLabel: 'PM Walk',
+    manual: false,
   },
   {
     key: 'product_practiced',
@@ -30,6 +33,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Completed a live Product case practice session',
     icon: '🧠',
     stripLabel: 'PM Pract',
+    manual: false,
   },
   {
     key: 'tpm_walkthrough',
@@ -38,6 +42,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Reviewed a TPM walkthrough case today',
     icon: '🛠️',
     stripLabel: 'TPM Walk',
+    manual: false,
   },
   {
     key: 'tpm_practiced',
@@ -46,6 +51,7 @@ export const HABIT_DEFINITIONS = [
     description: 'Completed a live TPM case practice session',
     icon: '⚙️',
     stripLabel: 'TPM Pract',
+    manual: false,
   },
 ];
 

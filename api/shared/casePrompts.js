@@ -95,13 +95,12 @@ Each interviewer turn must use "content" field (NOT thinking/commonSlip/says/coa
 - Occasionally pushing back to test conviction
 
 CONVERSATION LENGTH:
-- Each of the 8 steps must have at minimum:
+- The conversation must cover at least 6 steps relevant to this case type (selected from the 8-step framework).
+- Each covered step must have at minimum:
   - 1 interviewer opening message
   - 1 candidate response (with thinking, commonSlip, says, coachNote)
-  - 1 interviewer follow-up or probe
-  - 1 candidate response going deeper (with thinking, commonSlip, says, coachNote)
-- Total conversation: minimum 16 messages (8 candidate turns); aim for 24-32 with two exchanges per step
-- Do not rush through steps — depth over speed
+- Keep responses highly concise and focused (thinking: ~4 sentences; says: ~2-3 sentences). Avoid essay-length text to minimize generation latency.
+- Total conversation: minimum 12 messages (6 candidate turns); keep it tightly bounded and clear.
 
 EXAMPLE OF A POOR CANDIDATE RESPONSE — never generate like this:
 {
