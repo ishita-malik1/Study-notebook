@@ -37,7 +37,18 @@ export default function WalkthroughView({
     );
   }
 
-  if (!walkthroughCase) return null;
+  if (!walkthroughCase) {
+    return (
+      <div className="case-error text-center py-12">
+        <p className="font-body text-gray-700">
+          No walkthrough loaded yet.
+        </p>
+        <button type="button" onClick={onRetry} className="case-btn-primary mt-4">
+          Generate Walkthrough
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="case-walkthrough mt-4 pb-8">

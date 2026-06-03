@@ -65,6 +65,20 @@ export function useCaseSession(caseType) {
 
   const stepOverrides = caseType === 'tpm' ? TPM_STEP_OVERRIDES : null;
 
+  // Guard against stale localStorage state that can leave the page blank
+  // (e.g., view says "walkthrough" but the case payload is missing).
+  useEffect(() => {
+    if (loading || error) return;
+
+    if (view === 'walkthrough' && !walkthroughCase) {
+      setView('landing');
+    }
+
+    if (view === 'practice' && !practiceCase) {
+      setView('landing');
+    }
+  }, [view, loading, error, walkthroughCase, practiceCase]);
+
   // Persist view state
   useEffect(() => {
     const today = getTodayStr();
