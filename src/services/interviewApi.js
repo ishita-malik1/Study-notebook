@@ -18,8 +18,8 @@ async function request(path, options = {}) {
   return data;
 }
 
-export async function fetchLearningProfile(caseType) {
-  return request(`/learningProfile?type=${encodeURIComponent(caseType)}`);
+export async function fetchLearningProfile(caseType, signal) {
+  return request(`/learningProfile?type=${encodeURIComponent(caseType)}`, { signal });
 }
 
 export async function submitDiagnostic({

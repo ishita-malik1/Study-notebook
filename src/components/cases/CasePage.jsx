@@ -6,7 +6,7 @@ import WalkthroughView from './WalkthroughView';
 import PracticeSession from './PracticeSession';
 import DiagnosticModal from './DiagnosticModal';
 import LoadingLine from '../layout/LoadingLine';
-import { needsDiagnostic } from '../../utils/caseSessionStorage';
+import { needsDiagnostic, markDiagnosticDone } from '../../utils/caseSessionStorage';
 import { submitDiagnostic } from '../../services/interviewApi';
 
 export default function CasePage({ caseType, title }) {
@@ -16,14 +16,26 @@ export default function CasePage({ caseType, title }) {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Hard 6-second timeout so a slow/down API never freezes the page.
+    const fallbackTimer = setTimeout(() => {
+      if (!cancelled) {
+        setShowDiagnostic(false);
+        setCheckingDiagnostic(false);
+      }
+    }, 6000);
+
     needsDiagnostic(caseType).then((needed) => {
       if (!cancelled) {
+        clearTimeout(fallbackTimer);
         setShowDiagnostic(needed);
         setCheckingDiagnostic(false);
       }
     });
+
     return () => {
       cancelled = true;
+      clearTimeout(fallbackTimer);
     };
   }, [caseType]);
 
@@ -33,6 +45,7 @@ export default function CasePage({ caseType, title }) {
         type: caseType,
         ...answers,
       });
+      markDiagnosticDone();
       setShowDiagnostic(false);
     },
     [caseType]
