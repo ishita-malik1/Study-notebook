@@ -38,11 +38,11 @@ export default function SkillRadarChart({ liveSessions }) {
   const chartHeight = useChartHeight(260);
   const sessionCount = liveSessions.length;
 
-  if (sessionCount < 3) {
+  if (sessionCount < 1) {
     return (
       <div className="progress-panel rounded-lg border border-[#e8dcc8] bg-white/80 p-5 shadow-sm h-full flex items-center justify-center min-h-[220px] tablet:min-h-[260px]">
         <p className="font-body text-sm text-gray-500 text-center px-4">
-          Complete 3+ sessions to see your skill radar
+          Complete a practice session to see your skill radar
         </p>
       </div>
     );

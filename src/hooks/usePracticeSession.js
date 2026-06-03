@@ -289,13 +289,43 @@ export function usePracticeSession({ caseType, practiceCase }) {
         hintUsed,
       });
       setEvaluation(result);
+
+      // Auto-save the session immediately to avoid losing progress
+      setSaving(true);
+      try {
+        await saveLiveSession({
+          date: format(new Date(), 'yyyy-MM-dd'),
+          type: caseType,
+          caseMetadata: {
+            problemType: caseContext.problemType,
+            company: caseContext.company,
+            domain: caseContext.domain,
+            problemStatement: caseContext.problemStatement,
+          },
+          conversation: buildHistory(),
+          scores: result.scores,
+          band: result.band,
+          feedback: result.feedback,
+          hintUsed,
+          stepsCovered: result.stepsCovered,
+        });
+        const profile = await fetchLearningProfile(caseType);
+        setLearningProfile(profile);
+        await refreshStreaks().catch(() => {});
+        setSaved(true);
+      } catch (saveErr) {
+        console.error('Auto-save failed:', saveErr);
+      } finally {
+        setSaving(false);
+      }
+
       return { evaluation: result };
     } catch (err) {
       return { error: err.message };
     } finally {
       setEvaluating(false);
     }
-  }, [messages, caseContext, buildHistory, hintUsed]);
+  }, [messages, caseContext, buildHistory, hintUsed, caseType, refreshStreaks]);
 
   const saveSession = useCallback(async () => {
     if (!evaluation || !caseContext) return;
